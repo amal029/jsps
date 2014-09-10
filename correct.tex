@@ -1,0 +1,89 @@
+\section{Proofs of correctness, completeness, and soundness}
+\label{sec:proof-correctness}
+
+Section~\ref{sec:intr-real-time} describes the techniques and algorithms
+for introducing various types of wait statements providing real-time
+control in the SystemJ language. In this section we give the formal
+proof of correctness for the algorithms described in
+Section~\ref{sec:intr-real-time}.
+
+\begin{lemma}
+  Algorithm~\ref{alg:1} gives a value for \texttt{d} such that: $\lceil
+  \frac{M}{BCRT} \rceil \leq d \leq \lfloor \frac{N}{WCRT} \rfloor$
+  provided $D$ is a non-empty set for construct \texttt{wait\_inbetween
+    (M..N)}
+\label{lemma:1}
+\end{lemma}
+\begin{proof}
+  This lemma is trivially true from the definition of set $D$ in
+  Algorithm~\ref{alg:1}.
+\end{proof}
+
+\begin{theorem}
+  Given \texttt{wait\_inbetween (M..N)} Algorithm~\ref{alg:1} gives a
+  value \texttt{d}, provided $D$ is a non empty set, such that for any
+  given reaction time $\hj{\Delta}$ \hj{in the range of} $BCRT \leq
+  \Delta \leq WCRT$, $M \leq \Delta \times d \leq N$ holds.
+\label{th:1}
+\end{theorem}
+\begin{proof}
+  We use contradiction to prove the theorem.
+  \begin{compactenum}[\hspace{0.25cm} 1.]
+  \item Proof for case $\Delta = WCRT$: Assume \mbox{$d \times WCRT <
+      M$}, then $d < \frac{M}{WCRT}$. $BCRT \leq WCRT$, by definition,
+    hence, $\frac{M}{WCRT} \leq \frac{M}{BCRT}$. Thus for the assumption
+    to hold, $d < \frac{M}{BCRT}$, which contradicts
+    Lemma~\ref{lemma:1}. The assumption $d \times WCRT >N$ is trivially
+    proven from Lemma~\ref{lemma:1}.
+  \item Proof for case $\Delta = BCRT$: Like above, the assumption $d
+    \times BCRT < M$ is trivially proven from Lemma~\ref{lemma:1}. For
+    $d \times BCRT > N$ to hold, $d > \frac{N}{BCRT}$ should hold. But,
+    $BCRT \leq WCRT$, by definition, hence, $\frac{N}{BCRT} \geq
+    \frac{N}{WCRT}$, which again contradicts Lemma~\ref{lemma:1}.
+  \item Proof for case $BCRT < \Delta < WCRT$: For $d \times \Delta < M$
+    to hold, $d < \frac{M}{\Delta}$ should hold. By definition, $\Delta
+    > BCRT$, thus, $\frac{M}{\Delta} < \frac{M}{BCRT}$, hence, $d <
+    \frac{M}{BCRT}$ should hold, which contradicts
+    Lemma~\ref{lemma:1}. We can prove the other case $d \times \Delta >
+    N$, using the upper bound from Lemma~\ref{lemma:1} similarly.
+  \end{compactenum}
+\end{proof}
+
+Next, we prove the completeness property.
+\begin{theorem}
+  Given \texttt{wait\_inbetween (M..N)} Algorithm~\ref{alg:1} gives a
+  value \texttt{d}, provided $D$ is a non empty set, such that for
+  \textbf{all} given reaction times $\Delta$ in the range of $BCRT \leq
+  \Delta \leq WCRT$, $M \leq \Delta \times d \leq N$ holds.
+\end{theorem}
+\begin{proof}
+  Follows from Theorem~\ref{th:1}.
+\end{proof}
+
+Next, we sketch the proof for the soundness property of
+Algorithm~\ref{alg:1}.
+
+\begin{theorem}
+  Given \texttt{wait\_inbetween (M..N)} Algorithm~\ref{alg:1}
+  \textbf{does not} give a value \texttt{d}, such that for \textbf{all}
+  given reaction times $\Delta$ in the range of $BCRT > \Delta > WCRT$,
+  $M \leq \Delta \times d \leq N$ holds.
+\end{theorem}
+
+\begin{proof}
+  Soundness is trivially proven knowing that there exists no $\Delta <
+  BCRT$ or $\Delta > WCRT$ by definition
+  (cf. Section~\ref{sec:mapping-logical-time}).
+\end{proof}
+
+The proofs for correctness, completeness, and soundness for
+Algorithm~\ref{alg:2} are similar to those of
+Algorithm~\ref{alg:1}. Furthermore, correctness, completeness, and
+soundness for \texttt{wait\_atleast (M)} and \texttt{wait\_exact (M)}
+are dependent on Theorem~\ref{th:1}, because these are variants of the
+\texttt{wait\_inbetween (M..N)} statement.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "template"
+%%% End: 

@@ -1,0 +1,568 @@
+\section{Introducing real-time in SystemJ}
+\label{sec:intr-real-time}
+
+We introduce a single \textit{derived} statement called
+\texttt{wait\-\_inbetween (M..N)}, built from kernel constructs, in the
+SystemJ language for real-time control. The other two constructs
+\texttt{wait\-\_atleast (M)} and \mbox{\texttt{wait\_exact (M)}} are
+variants of this single derived construct.
+
+% The resolution of the delay statement is of secondary concern and is
+% dependent upon the execution platform.
+
+
+\subsection{Semantics of the \texttt{wait\_inbetween} statement}
+\label{sec:semant-delay-stat}
+
+% \begin{figure}[t!]
+%   \centering
+%   \includegraphics[scale=0.6]{./sem}
+%   \caption{Pictorial representation of the semantics of the delay
+%     statement and its variants}
+%   \label{fig:5}
+% \end{figure}
+
+Given a  SystemJ program:  \texttt{wait\_inbetween (M..N); p},  where $M
+\in  \mathbb{Q}^{>0}$  and $N  \in  \mathbb{Q}^{>0}$,  statement $p$  is
+executed after  real-time postponement  of $\tau$  units, such  that, $M
+\leq \tau \leq N$.
+
+We also introduce two variants of the derived statement
+\texttt{wait\_inbetween}.
+\begin{enumerate*}
+\item Given a SystemJ program \texttt{wait\_atleast (M); p}, where $M
+  \in \mathbb{Q}^{>0}$, statement $p$ is executed after real-time
+  postponement of $\tau$ units, such that, $M \leq \tau < \infty$. It is
+  important to note that the lower bound of the wait construct; $M$ is
+  \textit{not} an exact postponement, but rather the control is allowed
+  to proceed to the next statement anytime after waiting for \textit{at
+    least} $M$ times units.
+\item Given a SystemJ program \texttt{wait\_exact (M); p}, where $M \in
+  \mathbb{Q}^{>0}$, statement $p$ is executed after real-time
+  postponement of $\tau$ units, such that, $M \leq \tau \leq M$. In this
+  variant, the waiting time is exact.
+\end{enumerate*}
+
+% Figure~\ref{fig:5} pictorially represents the semantics of these delay
+% constructs. The construct \texttt{delay (M..N)} requires that upon
+% execution, the control-flow is suspended for \textit{at least} $M$ units
+% and \textit{at most} $N$ units, depicted as bounded box in
+% Figure~\ref{fig:5}. There is no upper bound for the delay variant
+% \texttt{delay(M)}, which requires that the control-flow suspends for
+% \textit{at least} $M$ units, but the following statement can be executed
+% after some countable delay, depicted with the unbounded box in
+% Figure~\ref{fig:5}. Finally, \texttt{delay (M..M)} requires that there
+% is an \textit{exact} delay of $M$ units, i.e., the control-flow suspends
+% execution for \textit{at least} and \textit{at most} $M$ units.
+
+\subsection{Rewriting the \texttt{wait\_inbetween} statement}
+\label{sec:rewr-delay-stat}
+
+The introduced \texttt{wait\_inbetween} construct is not a kernel
+construct, but a \textit{derived} construct built from the kernel
+constructs (Table~\ref{tab:1}) in SystemJ. Figure~\ref{fig:3} gives the
+rewrite of the \texttt{wait\_inbetween} construct to kernel statements.
+
+\begin{figure}[tb]
+	\vspace{-10pt}
+    \begin{minipage}{\textwidth}
+      \begin{lstlisting}[style=sysj,morekeywords={abort,await,emit,present,trap,pause,exit,delay,suspend}]
+trap(T){
+ int x = 0;
+ while(true){
+  x = x + 1;
+  pause;
+  if(x == d) exit (T); //wait for "d" ticks
+ } // d is the number of logical ticks calculated
+} // by Algorithm 1
+\end{lstlisting}
+    \end{minipage}
+    \caption{The rewrite of \texttt{wait\_inbetween} construct}
+    \label{fig:3}
+\end{figure}
+
+The fundamental observation is that real-time is converted into logical
+time via the \texttt{pause} construct. The rewrite basically maps
+real-time back to the elegant logical notion of time. The rewrite
+\textit{waits} a certain number of logical ticks, before proceeding to
+the next statement. The number of logical ticks \texttt{d} to
+\textit{wait} (Figure~\ref{fig:3}) is determined by the compiler
+statically at compile time. The value of \texttt{d} is intricately tied
+with the WCRT and BCRT of the program and hence the execution platform.
+
+\subsection{Finding the logical wait \texttt{d}}
+\label{sec:find-logic-delay}
+
+\begin{algorithm}[t!]
+  \begin{minipage}{1.0\linewidth}
+    \SetAlgoLined
+    \KwData{WCRT, BCRT, $M \in \mathbb{Q}^{>0}$, $N \in \mathbb{Q}^{>0}$}
+    \KwResult{d}
+    let $l_1 \leftarrow \lceil \frac{M}{WCRT} \rceil$\;
+    let $l_2 \leftarrow \lceil \frac{M}{BCRT} \rceil$\;
+    let $u_1 \leftarrow \lfloor \frac{N}{WCRT} \rfloor$\;
+    let $u_2 \leftarrow \lfloor \frac{N}{BCRT} \rfloor$\;
+    let $F:(l_1,u_1) \rightarrow S_1$\;
+    let $F:(l_2,u_2) \rightarrow S_2$\;
+    let $D \leftarrow S_1 \cap S_2$\;
+    \Return (some $d \in D$)\;
+    \caption{Finding the value of \texttt{d}}
+    \label{alg:1}
+  \end{minipage}
+\end{algorithm}
+
+The computation of \texttt{d} is shown in Algorithm~\ref{alg:1}. This
+algorithm is carried out for each CD (in SystemJ) or a synchronous
+program individually. \textit{The fundamental observation is -- the
+  reaction time for each logical tick is elastic -- varying only between
+  the BCRT and the WCRT, thus any number of logical ticks \texttt{d}
+  that map to the required real-time \mbox{\texttt{wait\_inbetween
+      (M..N)}} should be chosen in such a way that they are invariant to
+  this elasticity.}
+
+Our algorithm takes as input: WCRT, BCRT, and the lower and upper bounds
+$M$ and $N$, respectively, of the \texttt{wait\_inbetween} construct. We
+first divide $M$ and $N$ with the BCRT and WCRT, respectively. This
+division gives us the number of individual logical ticks, at the fastest
+(BCRT) and slowest (WCRT) program execution speeds, required to postpone
+the CD (or synchronous program) by the real-time specification. We
+always $ceil$ when dividing $M$ and $floor$ when dividing $N$ to make
+sure that the resultant values are integers (in domain
+$\mathbb{N}^{>0}$) and these functions guarantee that the resultant
+logical ticks result in real-time postponements between the required
+range $[M,N]$. Next, a function $F$ maps these calculated values to a
+set of equidistant integer points (values) separated by a unit value --
+these points represent all the logical ticks running at the WCRT and the
+BCRT, respectively that satisfy the real-time wait requirements. The
+intersection of these two sets gives all the logical ticks that satisfy
+the real-time requirements invariant of the logical time and its
+elasticity.
+
+Let us revisit the HRTCS example (cf. Figure~\ref{fig:1}) to illustrate
+the algorithm. From Figure~\ref{fig:1} we know that $M$ is 50.3 ms and
+$N$ is 200.3 ms, respectively. \hj{Timing analysis of the program has
+  found} WCRT and BCRT to be: 0.112 ms and 0.0334 ms,
+respectively. Thus, the algorithm proceeds as follows:
+
+\begin{enumerate*}
+\item $l_1 \leftarrow \lceil 50.3/0.112 \rceil$ and $u_1 \leftarrow
+  \lfloor 200.3/0.112 \rfloor$. $l_1 = 450$ and $u_1 = 1788$. We first
+  calculate the logical ticks that are always running at the WCRT and
+  satisfy the required real-time wait period.
+\item $l_2 \leftarrow \lceil 50.3/0.0334 \rceil$ and $u_2 \leftarrow
+  \lfloor 200.3/0.0334 \rfloor$. $l_2 = 1506$ and $u_2 = 5997$. We do
+  the same for the BCRT case.
+\item $S_1 = [450,1788]$ and $S_2 =[1506,5997]$. We then map the
+  resultant bounds to linear points. Sets $S_1$ and $S_2$ represent
+  logical ticks that running at the WCRT and BCRT, respectively always
+  satisfy the required real-time constraints.
+\item $D = S_1 \cap S_2$, $D = [1506,1788]$. Finally, the intersection
+  of the two sets gives the set $D$ from which we can choose any value
+  for \texttt{d}.
+\end{enumerate*}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[scale=0.6]{FF4}
+  \caption{The pictorial representation of the solution for the HRTCS system}
+  \label{fig:hrtcssoln}
+\end{figure}
+
+The resultant value for \texttt{d} gives the number of logical ticks,
+which can run at any physical clock-speed, bounded by the BCRT and the
+WCRT of the program and still result in the desired real-time wait
+period. Figure~\ref{fig:hrtcssoln} gives the solution space for the
+aforementioned calculation. The patterned space is the only overlapping
+region and hence gives the solution space for the above example. It is
+possible that $D$ is an empty set, that means no overlapping region
+could be found. We provide solutions for such cases in the next
+subsection.
+
+We think this is an elegant solution, because the technique provides
+real-time guarantees while preserving the essence (elastic logical tick)
+of synchronous and GALS programming prescribed by SystemJ and Esterel
+style languages. Moreover, this technique considers non
+maximal-parallelism, i.e., the postponement in logical ticks is
+calculated after scheduling of CDs or synchronous programs has been
+performed. To our knowledge we are the first to do so.
+
+\subsection{Extending the technique to variants of wait}
+\label{sec:extend-tehcn-vari}
+
+\paragraph{The \texttt{wait\_atleast(M)} construct}
+\label{sec:extend-techn-vari}
+
+The \texttt{wait\_atleast(M)} variant is easily accommodated in the
+technique. All one needs to do is find the set $S_1$ and choose a value
+from this set.
+
+\paragraph{The \texttt{wait\_exact(M)} construct}
+\label{sec:extend-techn-vari}
+
+The \texttt{wait\_exact(M)} variant is more interesting. Like before,
+we find sets $S_1$ and $S_2$, and find the intersection of the two sets
+to get the value of \texttt{d}. It is possible % (and often likely, as
+% suggested by our experiments in
+% Section~\ref{sec:experimental-results})
+that the resultant set $D$ is empty (also possible in the case of
+\texttt{wait\_inbetween(M..N)}, but never possible in case of
+\texttt{wait\_atleast(M)}). Note that $S_1$ and $S_2$ can never be empty
+sets and will always contain at minimum a single element. For such
+cases, we provide two solutions listed below.
+
+% In such a case, we can \textit{relax} the upper bound of the
+% \texttt{delay} statement.
+
+\paragraph{Relaxation of the upper real-time bound}
+\label{sec:over-appr-relax}
+
+The relaxation technique is shown in Algorithm~\ref{alg:2}.
+  
+\begin{algorithm}[t!]
+  \begin{minipage}{1.0\linewidth}
+    \SetAlgoLined
+    \KwData{$S_2$, $D$, WCRT}
+    \KwResult{d}
+    \If {$D = \emptyset$} {
+      let $j_{0}$ be the first element of set $S_2$\;
+      \ShowLn let $N \leftarrow WCRT \times j_0$\;
+      let $d \leftarrow j_0$\;
+    }
+    \Return d\;
+    \caption{Calculating the minimum relaxation of the upper real-time
+      bound}
+    \label{alg:2}
+  \end{minipage}
+\end{algorithm}
+
+
+This algorithm results in the \underline{smallest} relaxation required
+for the real-time postponement to be satisfied. The algorithm takes as
+input the WCRT and set $S_2$, recall that set $S_2$ represents the
+logical ticks required to satisfy the real-time requirement at the
+BCRT. We take the very first value from set $S_2$ and multiply it with
+the WCRT to get the relaxation $N$. The first element of set $S_2$ is
+returned as the logical tick \texttt{d}. The fundamental observation is
+that we have to postpone the proceeding statement for at least $M$ units
+of real-time, hence, under-approximation is out of question. We can
+still over-approximate, but to reduce the resultant error, we should
+over-approximate by the least possible value, which is the lower bound
+of set $S_2$. Thus, the lower bound is considered to be the only element
+shared between the two sets $S_1$ and $S_2$ and accordingly, the upper
+real-time bound is relaxed by the multiplication of WCRT and the first
+element of set $S_2$.
+
+For example, assume $BCRT=5$ and $WCRT=100$, with a required
+postponement of $(200..200)$. Algorithm~\ref{alg:1}, results in $D$
+being an empty set, since $S_1=[2]$ and $S_2=[40]$, respectively. In
+such a case, the resultant relaxation is: $40 \times 100$ using
+Algorithm~\ref{alg:2}, which results in a time of $4000$ units. Such
+large over-approximations can be avoided by breaking the critical paths
+(worst case ticks) in the program (by inserting \texttt{pause}
+constructs), just like in hardware design, which is very
+\textit{unsurprising} considering Esterel has its origins in hardware.
+
+\paragraph{Periodic execution of the clock domains}
+\label{sec:peri-exec-clock}
+
+The aforementioned technique maintains the essence of synchronous and
+GALS programs -- the logical tick, but in doing so is unable to provide
+the exact real-time wait of $M$ time units in case of
+\texttt{wait\_exact(M)} statement, or is unable to provide a
+postponement in the region of $[M, N]$ time units in the case of
+\texttt{wait\_inbetween (M..N)} statement, thereby violating their
+semantics. The second option is to execute the CD periodically at the
+WCRT. WCRT determines the fastest execution speed of any CD with the
+guarantee that no input events from the environment will be missed
+(cf. Section~\ref{sec:mapping-logical-time}). Thus, if we simply execute
+the CD periodically at the WCRT, we can choose the value of \textit{d}
+from set $S1$. This technique allows meeting the synchronous hypothesis,
+while at the same time guaranteeing the semantics of the
+\texttt{wait\_exact(M)} statement. This technique trades-off reduced
+average reaction time and increased power consumption while providing
+exact postponement.
+
+We believe that the designer should be allowed to choose from either of
+these techniques and hence, provide this option via compiler switches.
+
+\subsection{The tool-chain flow}
+\label{sec:tool-chain-flow}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[scale=0.5]{./tool-flow}
+  \caption{The tool-chain flow of SystemJ compiler with waits}
+  \label{fig:4}
+\end{figure}
+
+The interaction of the low-level execution platform and the described
+high-level technique of introducing real-time waits in the SystemJ
+language is shown in Figure~\ref{fig:4}. The numerical annotations in
+Figure~\ref{fig:4} show the sequence of steps in the compilation
+procedure. We use static analysis techniques to find out the WCRT/BCRT
+of the programs automatically after rewrites and standard compiler
+optimizations. % We require timing
+% analyzable platforms, in our case \textit{Java Optimized Processor}
+% (JOP)~\cite{jop:jnl:jsa2007}.
+It is worth pointing out that since all rewrites, including the rewrite
+for the wait constructs happen before WCRT/BCRT analysis, this analysis
+incorporates the affects of the introduction of the wait
+statements. Moreover, since Algorithms~\ref{alg:1} and~\ref{alg:2} are
+performed after scheduling for different constraints such as faster
+execution time, or reduced power consumption, we inherently satisfy the
+criteria of exploiting non-maximal parallelism. The low-level analysis
+guarantees a precise WCRT/BCRT for the logical tick, which is then used
+for calculating $d$ in Figure~\ref{fig:3}.
+
+Our compiler has a switch that enables over-appro\-ximation as described
+in Section~\ref{sec:extend-tehcn-vari} provided the wait requirements
+are not met. If this compiler switch is not enabled, the compiler simply
+decides to execute the CD periodically, where the period is the
+WCRT. WCRT effects the over-approximation and the period of the CD,
+irrespective of the solution that the system designer chooses. A large
+WCRT results in reduced performance and hence it is essential that the
+WCRT be optimized. One can optimize the WCRT of any CD by breaking the
+critical paths using the \texttt{pause} construct as we show later in
+Section~\ref{sec:experimental-results}.
+
+In the following subsections we describe: (1) the time analyzable
+architecture and the corresponding SystemJ program execution model and
+(2) the static analysis techniques used to compute the WCRT/BCRT of a
+SystemJ program.
+
+\subsubsection{Time analyzable architecture and the SystemJ program
+  execution model}
+\label{sec:time-analyz-arch}
+
+SystemJ programs integrate both control-driven and data-driven
+operations. Implementing both these types of operations on a single
+processor has been shown to be
+inefficient~\cite{DBLP:journals/tecs/SalcicM13}, generally resulting in
+large code size and slow execution speed. In order to achieve efficient
+execution, the control-driven and data-driven operations are separated
+at the compiler back-end and then mapped onto dedicated processing
+units; a control processor and a data processor,
+respectively~\cite{DBLP:journals/tecs/SalcicM13}. Both processors work
+in tandem, hence the resultant architecture is also termed the
+\textit{Tandem Processor} (TP).
+
+The program control flow representing control-driven operations is named
+Concurrency and Reactivity Control Flow (CRCF). Besides control flow of
+the reactions, CRCF also includes scheduling of all reactions and CDs,
+communication between reactions and CDs, and communication with the
+environment. CRCF code is executed on the control processor. On the
+other hand, the control flow of data-driven operations is called Java
+Control Flow (JCF), since all data computations of SystemJ programs are
+compiled to Java bytecodes running on the data processor. With this
+separation, SystemJ program execution is initiated and directed by the
+CRCF; whenever a Java data computation is required, the execution is
+switched to JCF and returns to CRCF again upon completion.
+
+In this work we choose a multi-core platform named TP-JOP as our target
+execution platform. TP-JOP execution platform uses Reactivity and
+COncurrency Processor (ReCOP)~\cite{DBLP:journals/tecs/SalcicM13} as the
+control processor and Java Optimized Processor
+(JOP)~\cite{jop:jnl:jsa2007} as the data processor. TP-JOP is based on
+the idea of Tandem Processor (TP) proposed
+in~\cite{DBLP:journals/tecs/SalcicM13} with different implementation for
+the data processor. Both ReCOP and JOP are designed with time-analyzable
+features, which make WCRT/BCRT analysis of SystemJ programs feasible on
+TP-JOP. The block diagram of TP-JOP is shown in Figure~\ref{fig:4} --
+denoted as \textit{Architecture
+  Graph}. % Note here in our work there is no
+% interleaving between the execution of ReCOP and JOP, resulting in a
+% sequential execution pattern that simplifies the timing analysis.
+
+JOP is a real-time analyzable soft-core processor targeted at execution
+of Java programs in an embedded environment~\cite{jop:jnl:jsa2007}. A
+\textit{Worst Case Execution Time} (WCET) analysis tool called JOP WCET
+Analyzer (WCA) is provided with JOP. WCA performs static WCET analysis
+of Java program based on Implicit Path Enumeration (IPET) approach
+[15]. In our framework, the WCA tool is used to analyze the WCET of all
+data-driven operations in the JCF. ReCOP is designed exclusively to deal
+with the execution of CRCF of SystemJ programs. It also handles the
+communication with JOP and with the environment. ReCOP executes the CRCF
+assembly code generated by the back-end of the SystemJ compiler. Every
+assembly instruction, generated from CRCF, is executed in exactly three
+ReCOP clock cycles; fetch, decode and execution cycle.
+
+\subsubsection{Static analysis for computing the WCRT and BCRT of a
+  SystemJ program}
+\label{sec:stat-analys-comp-1}
+
+\begin{figure*}[t!]
+  % \centering
+  \begin{SubFloat}{\label{fig:6a} TAGRC of the HRTCS SystemJ program}
+    \includegraphics[scale=0.4]{AGRC}
+  \end{SubFloat}
+  \begin{SubFloat}{\label{fig:6b} TA of first CD in HRTCS}
+    \includegraphics[scale=0.43]{Uppaal}
+  \end{SubFloat}
+  \caption{TAGRC of the HRTCS program and its corresponding TA
+    translation}
+  \label{fig:6}
+\end{figure*}
+
+Before giving a detailed description of the static analysis technique
+used to calculate the WCRT/BCRT of a SystemJ program we revisit the
+tool-chain flow, in Figure~\ref{fig:4}, to give an overview of the
+compilation and WCRT/BCRT estimation procedure.
+
+In step 1, the source code of a given SystemJ program is first compiled
+into Asynchronous GRaph Code (AGRC) intermediate representation using
+the front-end of the SystemJ compiler~\cite{amal10} (see
+Figure~\ref{fig:6a} for an example of the AGRC intermediate format for
+the HRTCS running example). The AGRC representation at this step does
+not contain any timing information and is then sent to the back-end of
+the SystemJ compiler for target code generation. The target code
+generated by SystemJ compiler for TP-JOP consist of assembly
+instructions, representing CRCF code, executed on ReCOP and bytecodes,
+representing JCF code, executed on JOP (step 2). During target code
+generation in step 2, the tracking information is also produced,
+indicating the original AGRC node from which a segment of target code is
+generated.
+
+Both CRCF assembly code and JCF bytecode are analyzed by our customized
+WCET analyzer to calculate WCET information for each AGRC node (step
+3). The customized WCET Analyzer used in step 3 comprises of the
+standard JOP WCA~\cite{jop:jnl:jsa2007} and ReCOP WCET analyzers. The
+latter performs WCET analysis for CRCF code by counting the number of
+assembly instructions for any AGRC node and deriving the WCET result
+based on the micro-architecture level analysis of ReCOP. The original
+AGRC is then back-annotated with the node-level WCET information
+acquired from step 3 to obtain Timed Asynchronous GRaph Code (TAGRC). It
+is important to note that the WCET analyzers for JOP and ReCOP only work
+on basic-blocks~\footnote{Sequential code with single entry and exit
+  points without branches.} and hence, WCET and BCET~\footnote{Best Case
+  Execution Time.} are the same for individual AGRC nodes.
+
+AGRC extends the GRaph Code (GRC)~\cite{pbat07} with asynchrony by
+composing separate GRCs, one for every CD in the program. In order to
+compartmentalize our WCRT/BCRT analysis to each synchronous CD, TAGRC is
+partitioned into a set of Timed GRaph Codes (TGRCs), one for every
+CD. After obtaining TGRCs, model checking based tight WCRT/BCRT analysis
+is carried out in steps 4 and 5. In these steps, each TGRC obtained from
+step 3 is translated into a Timed Automaton (TA) (see
+Figure~\ref{fig:6b} for the TA generated from the HRTCS example) and
+input into the Uppaal~\cite{gbeh04} model-checker for exhaustive path
+exploration to find a tight WCRT/BCRT estimate of the program. Instead
+of using real-valued clocks, we employ a single bounded integer to
+capture the total time cost of a complete transition from the beginning
+to the end of a logic tick.
+
+During the translation from TGRC to TA we preserve the following
+information: (1) the state encoding and decoding that capture tick
+transition semantics and (2) internal and output signal emission and
+testing. Model checking based WCRT/BCRT analysis benefits from
+preserving this information, which essentially models the execution flow
+of the SystemJ program, because model-checker can implicitly prune paths
+via control flow analysis. Consequently a tight WCRT/BCRT result can be
+obtained. % We exploit a well-known model checker for timed automata
+% called UPPAAL~\cite{gbeh04}, because it offers efficient algorithms for
+% both TA and automata with integer operations. In our static analysis
+% framework, shown in Figure~\ref{fig:4}, all the timed automata are
+% generated in the format of UPPAAL model.
+
+\subsubsection{Model-checking based tight WCRT and BCRT analysis}
+\label{sec:model-checking-based}
+
+Figure~\ref{fig:6a} shows the TAGRC for our running example: the HRTCS
+system~\footnote{The TAGRC for HRTCS has been abstracted for the sake of
+  understanding.}. TAGRC is so called, because every node in the AGRC is
+annotated with WCET information, obtained via low level
+micro-architectural analysis. AGRC is the intermediate presentation that
+captures the semantics of the original SystemJ program. It is obtained
+by applying \textit{Structural Operational Semantic} rules to the
+original SystemJ program~\cite{amal10}.
+
+AGRC consists of a number of unique nodes: the \textit{Afork Node} forks
+multiple CDs, the \textit{Fork Node} is responsible for forking
+synchronous parallel reactions, the forked synchronous parallel
+reactions are synchronized together by the \textit{Join Node}. The CDs
+on the other hand being asynchronous to each other do not block at the
+\textit{Ajoin Node}, instead the \textit{Ajoin Node} is used to perform
+input output communication between the CD and its environment via
+signals. The current state of every reaction within any CD is encoded
+and later decoded via the \textit{Enter Node} and \textit{Switch Node},
+respectively. Similarly, the current termination context of the
+reactions is captured via \textit{Termination Node}. Finally,
+instantaneous actions such as emit, and Java data-computations are
+represented as \textit{Action Node} and branching constructs are
+represented with the \textit{Test Node}. A single execution of the AGRC
+from the \textit{AforkNode} to the \textit{Ajoin Node} represent a
+single tick transition for any given CD in the original SystemJ
+program. Different branches of \textit{Switch Node} and \textit{Test
+  Node} might be traversed, for any given tick transition, depending
+upon the current state of the program including signal statuses and
+values. On the other hand, every branch of a \textit{Fork Node} is
+executed in every tick transition. Moreover, the order of execution of
+these \textit{Fork Node} branches is irrelevant (see~\cite{amal10} for
+more details).
+
+Figure~\ref{fig:6b} shows the TA~\footnote{Timed Automaton} of CD 1 from
+Figure~\ref{fig:6a}. This TA is input into the Uppaal model-checker for
+finding out the WCRT/BCRT of each CD. The first step in this translation
+is to perform a one-to-one mapping for each node in the TGRC to a
+location in the TA. For example, \textit{Afork Node} AF0 in the TGRC is
+mapped to the initial location AF0 in the TA. Similarly, \textit{Switch
+  Node} S1 is mapped to a location S1, and so on and so forth. Next, we
+map each control flow edge in the TGRC to a transition between two
+locations in the TA. The conditional branching is modeled by annotating
+the transitions with additional guards. For instance, the transition
+from location S1 to E1 in Figure~\ref{fig:6b} has the expression
+\texttt{S1==0} as its guard condition to capture the tick transition
+semantics based on state encoding and decoding of switch node S1 in
+Figure~\ref{fig:6b}. The signal emission and state encoding process is
+captured by the assignments on the transition in the TA. In
+Figure~\ref{fig:6b}, assignments on transitions from E1, E2 and E3, etc
+model three distinct state encodings.
+
+As stated previously, a bounded integer (\texttt{wcrt}) is used to count
+the total execution time for a single tick transition for any given
+CD. Therefore, \textit{every} transition in the TA is annotated with an
+assignment that increases the integer \texttt{wcrt} by the WCET value of
+the target location. Due to the semantics of AGRC nodes related with
+control flow, modifications are needed to the TA to correctly model the
+execution flow. Since the order of execution of the synchronous parallel
+reactions forked by the \textit{Fork Node} is irrelevant, one can run
+reactions cyclically. This cyclic execution flow of synchronous parallel
+reactions is captured in the TA by inserting a back-edge from the
+\textit{Join Node} (e.g., J2) to its corresponding \textit{Fork Node}
+(e.g., F2). Furthermore, since a tick transition for every CD starts at
+\textit{Afork Node} and finishes at the \textit{Ajoin Node}, there
+should be a transition from \textit{Ajoin Node} back to \textit{Afork
+  Node} to model the repeating CD tick transitions. The bounded integer
+\texttt{wcrt} also needs to be cleared during this transition. Finally,
+communication of this CD with its environment is also modeled as signal
+status and value updates on this transition.
+
+We model the tight WCRT/BCRT analysis problem as verifying a
+\textit{Computational Tree Logic} (CTL) property in UPPAAL model
+checker. Herein we explain how the tight WCRT is obtained, obtaining the
+tight BCRT follows an analogous procedure. The tight WCRT, named
+WCRTtight, is the objective of WCRT analysis. WCRT-tight lies in the
+bounded range denoted by [WCRTlb, WCRTub]. WCRTub is a safe upper-bound
+of WCRT obtained by applying Max-Plus algebra~\cite{boldt07} to the
+TGRC, which is essentially summing up the maximum tick execution time of
+every reaction in the CD. Similarly, we calculate a lower-bound of WCRT,
+termed WCRTlb, by summing up the minimum tick execution time of every
+reaction in the CD. After translating TGRC to the TA, we check the
+validity of a WCRT estimate of the CD, termed WCRTest, by verifying a
+CTL property upon the TA using UPPAAL model checker. The CTL property is
+written as \texttt{A[](wcrt ≤ WCRTest)}, meaning that the value of
+integer \texttt{wcrt} is less or equal to the WCRTest for every path
+starting from the initial location. In order to minimize the number of
+queries, we use standard binary search algorithm to find WCRTtight.
+
+
+% The system designer can then either set the compiler switch or change
+% the program by shortening the critical path by introducing
+% \texttt{pause} constructs. We show how introducing \texttt{pause}
+% constructs can help reduce the WCRT in
+% Section~\ref{sec:experimental-results}.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "template"
+%%% End: 

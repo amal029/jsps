@@ -1,0 +1,267 @@
+\section{Discussion}
+\label{sec:disc-perc-limit}
+
+We dedicate this section to discuss the details of the real-time wait
+construct semantics, its advantages and limitations in a reactive
+setting.
+
+\subsection{Programming using the wait\_exact construct -- the
+  periodic reactions}
+\label{sec:progr-using-delay}
+
+% All three delay constructs are useful for programming real systems. % The
+% first form of the delay construct $delay(M..N)$ is used to program
+% non-determinism like in the HRCTS system and a real printer-spooler
+% embedded system, etc. The second form is useful for programming low
+% priority periodic tasks.
+
+% \subsubsection{Non-deterministic time}
+% \label{sec:non-determ-time}
+
+% Many real-world systems require non-deterministic timing
+% constructs. Where the exact real-time delay is not known or should not
+% be known apriori. One such system is our motivating example -- the human
+% response time system (HRTCS). Another one we presented was a real
+% printer-spooler embedded controller in
+% Section~\ref{sec:experimental-results}.
+
+% \subsubsection{Timeout}
+% \label{sec:timeout}
+
+% There are many instances when one would like to wait on an input from
+% environment for only a specified amount of time. This can be programmed
+% as:
+
+% \begin{figure}[h!]
+%   \centering
+% 			\vspace{-10pt}
+% 			\begin{lstlisting}[style=sysj,basicstyle=\normalsize\ttfamily,morekeywords={await,emit,trap,pause,exit,delay}]
+% // timeout after 1ms.
+% trap(T){{await(A);}||
+%         {delay(1 ms);exit(T);}}
+% \end{lstlisting}
+%   \caption{Programming low priority timeout tasks with delay statements}
+%   \label{fig:timeout}
+% 			\vspace{-10pt}
+% \end{figure}
+
+% In the above case, the program waits for signal \texttt{A} from the
+% environment for \textit{at least} \texttt{1 ms}, but it may wait longer
+% if other reactions/CDs are scheduled for execution. This second variant
+% of delay statement is very useful for programming low priority tasks.
+
+% \subsubsection{Periodic reactions}
+% \label{sec:periodic-reactions}
+
+% The third variant is useful for hard-real time guarantees, e.g., a
+% reaction, or a whole CD, can be programmed to run periodically like so:
+
+% \begin{figure}[h!]
+% 	\vspace{-10pt}
+%         \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,wait_exact}]
+% while(true){wait_exact (1 ms); 
+% 	emit S; //do something
+% }
+%  \end{lstlisting}
+%   \caption{Programming periodic tasks with wait\_exact statement}
+%   \label{fig:periodic}
+% 	\vspace{-10pt}
+% \end{figure}
+
+% The program in Figure~\ref{fig:preemp}, reproduced from
+% Section~\ref{sec:progr-using-exact}, is supposed to emit signal
+% \texttt{S} every \texttt{1 ms}.
+
+One should be aware of the interaction of wait and other \texttt{pause}
+constructs in the body of the reaction (or CD). For example, consider
+the (perceived) periodic code snippet in Figure~\ref{pp:a} and its
+rewrite in Figure~\ref{pp:b}.
+
+\begin{figure}[h!]
+  \centering
+  \begin{SubFloat}{\label{pp:a}Original program}
+    \centering
+    \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,wait_exact}]
+while(true) {
+ wait_exact(1 ms);
+ //extra pause
+ pause;
+ emit S;
+}
+\end{lstlisting}
+\end{SubFloat}
+\hspace{9pt}
+  \begin{SubFloat}{\label{pp:b}Rewritten program}
+    \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,delay}]
+while(true) {
+ while(true) { 
+  trap(T) {
+   int x = 0;
+   while(true) {
+    x = x + 1;
+    pause;
+    if (x == d)
+     exit(T);
+   }
+  }
+  //extra pause
+  pause;
+  emit S;
+ }
+}
+\end{lstlisting}
+  \end{SubFloat}
+  \caption{Extra pause statements in periodic tasks}
+  \label{fig:periodic2}
+\end{figure}
+
+The system designer needs to be aware that just introducing a wait
+construct does not make the reaction (or CD) periodic. The code snippet
+in Figure~\ref{pp:a} does \textit{not} emit signal \texttt{S} every
+\texttt{1 ms}, because of the extra \texttt{pause}
+statement. Introducing additional pauses introduces more logical ticks,
+consequently increasing the real-time wait period. Static analysis
+techniques from real-time community can be used to automatically
+determine the specification for the \texttt{wait\_exact} statement in
+Figure~\ref{pp:a}, in such cases, but describing these techniques is out
+of the scope of this work.
+
+\subsection{Need for time analyzable platforms}
+\label{sec:need-time-analyzable}
+
+The solution for introducing real-time as first class language
+constructs introduced in this paper rely on platforms that allow
+computing the WCRT and the BCRT of the program. Many might consider this
+to be too much of a restriction. In this section we debunk this
+\textit{perceived} disadvantage.
+
+\subsubsection{Interaction of timers and reactive constructs}
+\label{sec:inter-timers-react}
+
+% As mentioned previously, the proposed solution might need
+% over-approximation techniques (Algorithm~\ref{alg:2}) to guarantee
+% timing requirements (cf. Section~\ref{sec:extend-tehcn-vari}). This
+% might give the readers an impression that timer based solution proposed
+% for standard real-time operating systems should be utilized for
+% GALS/synchronous programs. This is a fallacy. Bourke et
+% al~\cite{Bourke2009a} have investigated this technique
+% unsuccessfully. We elaborate upon the interplay of timers and reactivity
+% to make the problem of using timers explicit.
+
+Preemption plays an important role in reactive languages. One needs to
+carefully consider the interplay of wait constructs semantics with the
+preemption semantics of reactive languages. Previous attempts at
+incorporating postponement using external timers has only been partially
+successful, because of the complex interplay between real-time and
+preemption. Consider the simple example below, which models real-time
+using external timers as in~\cite{rsh94}.
+
+\begin{figure}[h!]
+  \centering
+	\vspace{-10pt}
+		\begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,delay,suspend}]
+  suspend(S) {
+   emit START_TIMER(10); 
+   await (TIMER);emit O1;
+  }
+		\end{lstlisting}
+  \caption{Interaction of preemption and external timers}
+  \label{fig:preemp}
+	\vspace{-10pt}
+\end{figure}
+
+As identified in~\cite{Bourke2009a} \texttt{suspend} does not play well
+with the external timer. The program in Figure~\ref{fig:preemp} sends a
+signal to an external timer and waits for 10 ms to pass by. Consider
+what happens when signals \texttt{S} and \texttt{TIMER} occur in the
+same logical tick, the \texttt{await} statement is never executed (due
+to suspend) and hence, we enter a deadlock. Such problems are completely
+avoided in our technique, because we convert the real-time wait
+constructs into logical waits (\texttt{pause} constructs), which
+interact well with preemption.  Furthermore, synchronous languages have
+always been targeted at real-time analyzable platforms and constrained
+environments~\cite{DBLP:journals/pieee/SifakisTY03,boldt07}. One can use
+our technique within such a setting with ease.
+
+\subsubsection{The timer resolution problem}
+\label{sec:resolution-real-time}
+
+\begin{figure}[h!]
+  \centering
+	\vspace{-10pt}
+        \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,delay,suspend}]
+{
+ //reaction R1
+ emit START_TIMER(1 ms); 
+ await (TIMER);emit O1;
+}
+|| //synchronous parallel
+{
+ //reaction R2
+ // do something with heavy computation
+}
+		\end{lstlisting}
+  \caption{Resolution of external timers}
+  \label{fig:resolution}
+	\vspace{-10pt}
+\end{figure}
+
+There is yet another problem with timer based systems. Let us consider
+the code snippet in Figure~\ref{fig:resolution}. On a cursory look this
+example should work fine. An external timer is started in reaction R1,
+which counts down from 1 ms. Once this time has elapsed, a signal
+\texttt{TIMER} is generated from this external timer, which should emit
+O1 in turn. There is no \texttt{suspend} construct encapsulating the
+timer and hence all seems fine. Let us now consider what happens to the
+whole CD, including reaction R2; while reaction R1 is waiting for the
+\texttt{TIMER} signal, reaction R2 is making progress. Input signals can
+only be captured from the environment at the logical tick boundaries
+(cf. Section~\ref{sec:mapping-logical-time}). In
+Figure~\ref{fig:resolution}, assuming reaction R2 performs some large
+data computation, the length of the tick is determined by R2. Consider
+what happens if the external timer generates the \texttt{TIMER} signal,
+but the system is still performing computation and the logical tick has
+not yet finished -- we \textit{miss} this \texttt{TIMER} signal from the
+environment. Thus, even in the absence of the \texttt{suspend}
+construct, we are not guaranteed that the program will capture the
+external timer signal. In fact, the WCRT needs to be smaller than 1 ms
+for the above code snippet to perform as expected. But, this again
+implies need for a time analyzable platform even when using external
+timers.
+
+In general we observe that the WCRT determines the lowest resolution of
+any real-time construct whether it be external timer independent, like
+the proposed technique, or external timer dependent, like above. This
+analysis is one of the key insights for proposing the solutions
+described in this paper.
+
+% \subsection{Other semantic discussion}
+% \label{sec:other-semant-dissc}
+
+\subsection{Interaction of channel communication and wait constructs}
+\label{sec:inter-chann-comm}
+
+Channels, used for communication between reactions in asynchronously
+running CDs, are an addition in the SystemJ language. Like interaction
+of preemption and waits, conversion of real-time wait constructs to
+logical ticks also interacts well with channel rendezvous, because the
+semantics of interaction are well defined~\cite{amal10}. More
+importantly, we need to consider the interplay of channel communication
+and WCRT/BCRT analysis. Since, channel communication does not stop
+logical time (see~\cite{amal10}) WCRT/BCRT are unaffected by channel
+communication. % The response time to input signals \textit{is} though!
+% But, we are unconcerned with the response time, analysis in this paper
+% and it remains a future research avenue.
+
+% \subsubsection{Interaction of synchronous parallelism and delay}
+% \label{sec:inter-synchr-parall}
+
+% {\color{red}Maybe we should talk about how the control flow in other
+%   reactions and CDs is not affected by the delay statement.}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 

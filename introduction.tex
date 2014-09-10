@@ -1,0 +1,102 @@
+\section{Introduction and motivation}
+\label{sec:intr-motiv}
+
+Reactive languages~\cite{gber931,amal10} are a class of programming
+languages used for designing and implementing reactive systems, which
+continuously respond to input from their environment. These languages
+have been successfully used in programming a plethora of systems such as
+fly-by-wire in Airbus~\cite{eairbus}, security surveillance
+systems~\cite{amal121}, etc. Usually these systems also need to meet
+real-time constraints imposed by the environment. Yet, these languages
+do not support describing real-time statements as first class language
+constructs.  For example, one cannot describe a simple real-time delay
+(postponement) of an operation for 0.2 ms. These languages are based on
+formal semantics, essential for correct by construction code generation
+and formally verifying functional properties of developed programs, but
+leave nonfunctional properties such as timing behavior as an
+implementation detail~\cite{boldt07}. Arguably, rightly so, because
+physical time cannot be incorporated without information about the
+underlying execution platform.  But, one can still reason in terms of
+logical time. These languages support discrete logical clock rather than
+a discrete physical (real-time) clock. The real-time period of the
+discrete logical clock (also referred to as a logical tick) is not fixed
+and it is determined by the speed of computation of the program for
+different input signals. Unlike a discrete physical clock, which has
+fixed real-time period, the period of the logical clock is elastic.
+Although the timing model with logical clock has worked well for
+reactive synchronous/GALS languages in designing discrete systems, there
+is a need to introduce real-time since often, implementation models are
+in the continuous or discrete real-time
+domain~\cite{DBLP:journals/pieee/SifakisTY03}. This paper targets
+enhancing the expressiveness of formal GALS and synchronous languages by
+adding real-time constructs. These real-time constructs speed up the
+design process by allowing system designers to explicitly program
+real-time control logic within the language itself without relying on
+external resources such as timers. Introduction of real-time as a
+language construct allows verification of temporal properties of
+programs before deployment.
+
+%Moreover, adding timing
+%capabilities as first class language constructs create additional
+%opportunity for formally verifying functional and non-functional
+%requirements before system deployment.
+
+\input{motivation}
+
+The major motivations for introducing these real-time \textit{wait}
+mechanisms and at the same time \textbf{contributions} of the paper are:
+\hj{(1) real-time wait does not affect the model of logical time in
+	SystemJ program as long as the amount of delay is within boundaries
+that can be determined statically by program analysis.} (2) the waiting
+model relies on the use of relative instead of absolute real-time, i.e.,
+a wait in selected time units is counted from the beginning of the wait
+statement and (3) these waiting mechanisms allow mixing behaviors with
+real-time features and others with only logical time. All these as well
+as semantics of the wait constructs are discussed and illustrated in the
+rest of the paper. Our contributions can be further refined as follows:
+
+\begin{enumerate*}
+\item Real-time is specified in the $\mathbb{Q}^{>0}$ domain of numbers,
+  i.e., non-negative rational numbers.
+% \item We consider the property of \textit{non
+%     maximal-parallelism}. \textit{Non-maximal parallelism:} There are
+%   not always sufficient resources for processes to execute, so
+%   effectively processes are allocated and scheduled with different
+%   optimization criteria -- reducing computation time, reducing power
+%   consumption, etc. This allocation and scheduling is an integral part
+%   of any language compilation and needs to be considered when
+%   introducing real-time waits.
+\item We are the first, to our knowledge, to allow specification of
+  both; exact and non-exact real-time in GALS and synchronous programs.
+\item We shed light upon a key insight relating real-time and
+  logical-time -- \textit{the resolution of any real-time statement is
+    dependent on the worst case logical tick time} -- an aspect that
+  seems to have escaped in the current literature on incorporating
+  real-time in synchronous/GALS languages.
+\end{enumerate*}
+
+All aforementioned contributions require a single \textbf{assumption}
+that real-time analyzable platforms are available that allow computing
+the timing bounds of SystemJ programs. This assumption is necessary for
+all hard real-time system implementations~\cite{wilhelm08}.
+
+The rest of the paper is arranged as follows:
+Section~\ref{sec:background} gives the background on SystemJ and related
+techniques required for the rest of the paper.
+Section~\ref{sec:intr-real-time} introduces real-time mechanisms in the
+GALS paradigm and describes their compilation into logical time.
+Section~\ref{sec:proof-correctness} sketches the correctness proofs for
+the introduced algorithms. Section~\ref{sec:experimental-results} gives
+the experimental results for a set of real-time applications. In
+Section~\ref{sec:disc-perc-limit} we discuss the advantages and
+limitations of the proposed approach. Section~\ref{sec:related-work}
+positions this work in relation to other approaches to introducing
+real-time in other languages. Finally, we conclude in
+Section~\ref{sec:concl-future-work}.
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "template"
+%%% End: 

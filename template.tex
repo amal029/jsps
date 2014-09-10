@@ -1,0 +1,265 @@
+%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is a general template file for the LaTeX package SVJour3
+% for Springer journals.          Springer Heidelberg 2010/09/16
+%
+% Copy it to a new file with a new name and use it as the basis
+% for your article. Delete % signs as needed.
+%
+% This template includes a few options for different layouts and
+% content for various journals. Please consult a previous issue of
+% your journal as needed.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% First comes an example EPS file -- just ignore it and
+% proceed on the \documentclass line
+% your LaTeX will extract the file if required
+\begin{filecontents*}{example.eps}
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 19 19 221 221
+%%CreationDate: Mon Sep 29 1997
+%%Creator: programmed by hand (JK)
+%%EndComments
+gsave
+newpath
+  20 20 moveto
+  20 220 lineto
+  220 220 lineto
+  220 20 lineto
+closepath
+2 setlinewidth
+gsave
+  .4 setgray fill
+grestore
+stroke
+grestore
+\end{filecontents*}
+%
+\RequirePackage{fix-cm}
+%
+% \documentclass{svjour3}                     % onecolumn (standard format)
+% \documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+% \documentclass[smallextended]{svjour3}       % onecolumn (second format)
+\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+\usepackage{graphicx}
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%
+% Insert the name of "your journal" with
+\journalname{Journal of Signal Processing and Systems}
+%
+\usepackage{color}
+\usepackage{listings}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.8}
+\usepgfplotslibrary{groupplots}
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{amsmath}
+% \usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{subfig}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{paralist}
+\usepackage[boxed,linesnumberedhidden]{algorithm2e}
+\pagestyle{empty}
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{corollary}[theorem]{Corollary}
+\usepackage{mdwlist}
+\linespread{0.994}
+% \usepackage{bibspacing}
+\usepackage{color}
+%\usepackage{hyperref}
+\makeatletter
+\newbox\sf@box
+\newenvironment{SubFloat}[2][]%
+{\def\sf@one{#1}%
+\def\sf@two{#2}%
+\setbox\sf@box\hbox
+\bgroup}%
+{ \egroup
+\ifx\@empty\sf@two\@empty\relax
+\def\sf@two{\@empty}
+\fi
+\ifx\@empty\sf@one\@empty\relax
+\subfloat[\sf@two]{\box\sf@box}%
+\else
+\subfloat[\sf@one][\sf@two]{\box\sf@box}%
+\fi}
+\makeatother
+
+\begin{document}
+
+\title{Times square -- marriage of real-time and logical-time in GALS
+  and synchronous languages%\thanks{Grants or other notes
+%about the article that should go on the front page should be
+%placed here. General acknowledgments should be placed at the end of the article.}
+}
+% \subtitle{Do you have a subtitle?\\ If so, write it here}
+
+%\titlerunning{Short form of title}        % if too long for running head
+
+\author{Hee Jong Park \and
+        Zhenmin Li \and 
+        Avinash Malik \and 
+        Zoran Salcic % etc.
+}
+
+%\authorrunning{Short form of author list} % if too long for running head
+
+\institute{H.J. Park \and Z. Li \and A. Malik \and Z. Salcic \at
+  Department of Electrical and Computer Engineering\\
+  38 Princes Street \\
+  University of Auckland \\
+  Auckland 1010 \\
+  New Zealand \\
+  % Tel.: +123-45-678910\\
+  % Fax: +123-45-678910\\
+  \email{hpar081@aucklanduni.ac.nz}           %  \\
+}
+
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
+
+\maketitle
+
+\newcommand{\hj}[1]{\textcolor{black}{#1}}
+\begin{abstract}
+  In this paper we introduce exact and non-exact real-time waits in the
+  reactive Globally Asynchronous Locally Synchronous (GALS) programming
+  languages and synchronous languages as their subset. The language
+  constructs that allow use of real-time waits are illustrated on the
+  SystemJ GALS language. They allow system designers to explicitly use,
+  at the specification level, not only logical time but also real-time
+  in order to control \hj{program execution}. The introduced concepts
+  utilize execution platforms that allow finding best and worst reaction
+  time of a GALS or synchronous program.
+
+
+  \keywords{First keyword \and Second keyword \and More}
+
+\end{abstract}
+
+\lstdefinestyle{sysj}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  xleftmargin=\parindent,
+  language=Java,
+  showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+
+% \section{Introduction}
+% \label{intro}
+% Your text comes here. Separate text sections with
+% \section{Section title}
+% \label{sec:1}
+% Text with citations \cite{RefB} and \cite{RefJ}.
+% \subsection{Subsection title}
+% \label{sec:2}
+% as required. Don't forget to give each section
+% and subsection a unique label (see Sect.~\ref{sec:1}).
+% \paragraph{Paragraph headings} Use paragraph headings as needed.
+% \begin{equation}
+% a^2+b^2=c^2
+% \end{equation}
+
+% % For one-column wide figures use
+% \begin{figure}
+% % Use the relevant command to insert your figure file.
+% % For example, with the graphicx package use
+%   \includegraphics{example.eps}
+% % figure caption is below the figure
+% \caption{Please write your figure caption here}
+% \label{fig:1}       % Give a unique label
+% \end{figure}
+% %
+% % For two-column wide figures use
+% \begin{figure*}
+% % Use the relevant command to insert your figure file.
+% % For example, with the graphicx package use
+%   \includegraphics[width=0.75\textwidth]{example.eps}
+% % figure caption is below the figure
+% \caption{Please write your figure caption here}
+% \label{fig:2}       % Give a unique label
+% \end{figure*}
+% %
+% % For tables use
+% \begin{table}
+% % table caption is above the table
+% \caption{Please write your table caption here}
+% \label{tab:1}       % Give a unique label
+% % For LaTeX tables use
+% \begin{tabular}{lll}
+% \hline\noalign{\smallskip}
+% first & second & third  \\
+% \noalign{\smallskip}\hline\noalign{\smallskip}
+% number & number & number \\
+% number & number & number \\
+% \noalign{\smallskip}\hline
+% \end{tabular}
+% \end{table}
+
+
+%\begin{acknowledgements}
+%If you'd like to thank anyone, place your comments here
+%and remove the percent signs.
+%\end{acknowledgements}
+
+% BibTeX users please use one of
+%\bibliographystyle{spbasic}      % basic style, author-year citations
+%\bibliographystyle{spmpsci}      % mathematics and physical sciences
+%\bibliographystyle{spphys}       % APS-like style for physics
+%\bibliography{}   % name your BibTeX data base
+
+\input{introduction}
+\input{background}
+\input{delays}
+\input{correct}
+\input{exps}
+\input{discussion}
+% \vspace{-15pt}
+\input{related_work}
+\input{conclusion}
+\bibliographystyle{spmpsci}
+\bibliography{main}
+% Non-BibTeX users please use
+% \begin{thebibliography}{}
+% %
+% % and use \bibitem to create references. Consult the Instructions
+% % for authors for reference list style.
+% %
+% \bibitem{RefJ}
+% % Format for Journal Reference
+% Author, Article title, Journal, Volume, page numbers (year)
+% % Format for books
+% \bibitem{RefB}
+% Author, Book title, page numbers. Publisher, place (year)
+% % etc
+% \end{thebibliography}
+
+\end{document}
+% end of file template.tex
+

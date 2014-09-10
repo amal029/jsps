@@ -1,0 +1,28 @@
+\section{Conclusion}
+\label{sec:concl-future-work}
+
+In this paper we have described a novel way to introduce real-time in
+\textit{Globally Asynchronous Locally Synchronous} (GALS) languages, in
+particular SystemJ, and their subset the synchronous languages like
+Esterel. The fundamental idea is to convert real-time wait constructs
+into logical waits (\texttt{pause} construct) that interact well with
+rest of the constructs in these languages, especially preemption and
+channel communication. We do \textit{not} need or use external timers to
+introduce these real-time wait constructs, instead we depend upon an
+underlying platform that is timing analyzable, thereby resolving the
+problems of interaction between external timers and
+preemption. Moreover, we also do not require specific timer resolutions,
+thereby making our solution elegant (in the spirit of GALS/synchronous
+programming) and flexible. We rewrite the wait constructs into reactive
+kernel constructs, calculate the \textit{Worst} and \textit{Best} case
+reaction times and then determine wait \texttt{d} in number of logical
+ticks, which is invariant to the \textit{elasticity} of logical time. To
+our knowledge we are the first to introduce exact and non-exact wait
+constructs in such languages and show their usefulness in designing
+real-world systems.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
