@@ -6,7 +6,7 @@ languages used for designing and implementing reactive systems, which
 continuously respond to input from their environment. These languages
 have been successfully used in programming a plethora of systems such as
 fly-by-wire in Airbus~\cite{eairbus}, security surveillance
-systems~\cite{amal121}, etc. Usually these systems also need to meet
+systems~\cite{amal121} and etc. Usually these systems also need to meet
 real-time constraints imposed by the environment. Yet, these languages
 do not support describing real-time statements as first class language
 constructs.  For example, one cannot describe a simple real-time delay
@@ -47,7 +47,7 @@ The major motivations for introducing these real-time \textit{wait}
 mechanisms and at the same time \textbf{contributions} of the paper are:
 \hj{(1) real-time wait does not affect the model of logical time in
 	SystemJ program as long as the amount of delay is within boundaries
-that can be determined statically by program analysis.} (2) the waiting
+that can be determined statically by program analysis,} (2) the waiting
 model relies on the use of relative instead of absolute real-time, i.e.,
 a wait in selected time units is counted from the beginning of the wait
 statement and (3) these waiting mechanisms allow mixing behaviors with

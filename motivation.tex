@@ -84,7 +84,7 @@ responsiveness can be based on the collected data.
 
 The SystemJ pseudo-code~\cite{amal10} for such a system, along with the
 expected timing behavior of the \texttt{wait\-\_inbetween} statement, is
-shown in Figure~\ref{fig:1}. We use the SystemJ language in this paper,
+shown in Figure~\ref{delay:a}. We use the SystemJ language in this paper,
 because being a \textit{Globally Asynchronous Locally Synchronous}
 (GALS) language it helps us easily describe a larger class of systems
 (like HRTCS in Figure~\ref{delay:a}) compared to purely synchronous
@@ -145,10 +145,10 @@ There are many instances when one would like to wait on an input from
 environment for only a specified amount of time. If the signal is not
 received, then a timeout is generated so that the program can make
 progress. Such a timeout programmed in the SystemJ pseudo-code along
-with its timing behavior is shown in Figure~\ref{dd}. The SystemJ
-program is waiting on an input signal, \texttt{DoorOpened}, from the
-environment for 10 seconds and makes progress irrespective of the
-reception of this signal after 10 seconds.
+with its timing behavior is shown in Figure~\ref{dd:a}. A part of the
+SystemJ door alarm system is waiting on an input signal,
+\texttt{DoorOpened}, from the environment for 10 seconds and makes
+progress irrespective of the reception of this signal after 10 seconds.
 
 The timing diagram, Figure~\ref{dd:b}, shows that the
 \texttt{wait\-\_atleast} statement waits for a \textit{at least} 10
@@ -174,7 +174,7 @@ program exact timeouts, periodic tasks, etc.
 \begin{figure}[t!]
   \centering
 	\vspace{-10pt}
-        \begin{SubFloat}{\label{pp:a}Periodically emitting signal S}
+        \begin{SubFloat}{\label{pp:aa}Periodically emitting signal S}
         \begin{lstlisting}[style=sysj,morekeywords={emit,trap,pause,exit,wait_exact}]
 while(true) { 
  wait_exact (1 ms); 
@@ -196,7 +196,7 @@ while(true) {
 \end{figure}
 
 One such example; periodic emission of a signal to the environment is
-shown in Figure~\ref{fig:p1}. As before, upon execution of
+shown in Figure~\ref{pp:aa}. As before, upon execution of
 \texttt{wait\_exact (1 ms)} statement, the time starts elapsing. But,
 unlike in previous cases the following statement needs to be executed
 exactly after 1 ms has passed, as shown in Figure~\ref{p1:b}.

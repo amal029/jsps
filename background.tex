@@ -53,14 +53,14 @@ the control flow. The data flow is programmed in the safe subset of
 Java~\cite{scj2013} amenable to formal verification and timing analysis,
 while avoiding all the pitfalls of programming in `C' style languages. A
 number of derived statements also exist (e.g., \texttt{sustain},
-\texttt{await}, etc) that make programming reactive systems easier. The
+\texttt{await}, etc.) that make programming reactive systems easier. The
 \textit{Model of Computation} (MoC) of a simple SystemJ program is shown
 in Figure~\ref{fig:2}.
 
-SystemJ consists of entities called \textit{Clock Domains} (CD)s, each
+SystemJ consists of entities called \textit{Clock Domains} (CDs), each
 running at their individual pace, interacting with the environment via
-signals and with each other via channels and CSP~\cite{choa85} style
-rendezvous. Each CD has its own notion of logical time. CDs are composed
+signals and with each other using CSP~\cite{choa85} style rendezvous via
+channels. Each CD has its own notion of logical time. CDs are composed
 of one or more units called reactions. These reactions themselves can be
 composed of children reaction forming a hierarchy. Each CD adheres to
 the \textit{perfect synchrony} hypothesis, i.e., all statements execute

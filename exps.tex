@@ -169,21 +169,22 @@ time. % This example along with HRTCS demonstrates the use of non exact
 
 AECS (Access and Environmental Control System) is an application that
 controls an intelligent room environment described in~\cite{aecs_ispa}.
-AECS has 2 CDs; each with one wait statement. The system is designed to
-measure how long the entrance door to the room is being opened or to
-detect unknown entries (i.e.  intruders). For instance, the system
-triggers an alarm 10 seconds after detection of an intruder or generates
-a beep sound when an entrance door is being opened for the same amount
-of time. In the original AECS, the system needed to interact with two
-external timers through input/output signals in order to wait for a
-specific amount of time (e.g.  \texttt{TimerTriggered} in
-Figure~\ref{delaycode:a}). When the timer expires, it notifies the
-system through the input signal \texttt{TimeOut}, which is polled using
-the \texttt{await} statement.  The program has been modified such that
-the wait constructs replace external timers and corresponding interface
-(I/O) signals, which is shown in Figure~\ref{delaycode:b}.  With the new
-wait constructs, these timers are not necessary and real-time waits can
-be expressed directly in the SystemJ code.
+AECS has 2 CDs; first one has one wait statement while the other has two
+wait statements. The system is designed to measure how long the entrance
+door to the room is being opened or to detect unknown entries (i.e.
+intruders). For instance, the system triggers an alarm 10 seconds after
+detection of an intruder or generates a beep sound when an entrance door
+is being opened for the same amount of time. In the original AECS, the
+system needed to interact with two external timers through input/output
+signals in order to wait for a specific amount of time (e.g.
+\texttt{TimerTriggered} in Figure~\ref{delaycode:a}). When the timer
+expires, it notifies the system through the input signal
+\texttt{TimeOut}, which is polled using the \texttt{await} statement.
+The program has been modified such that the wait constructs replace
+these external timers and corresponding interface (I/O) signals as shown
+in Figure~\ref{delaycode:b}. With the new wait constructs, these timers
+are not necessary and real-time waits can be expressed directly in the
+SystemJ code.
 
 \begin{figure}[h!]
 	\vspace{-10pt}
@@ -246,8 +247,8 @@ trap(T){
 
 We use the TP-JOP platform to carry out all our experiments. We
 statically estimate the WCRT and BCRT of these benchmark applications
-using our real-time analysis framework described previous in
-Section~\ref{sec:stat-analys-comp-1}.  The \textit{Safety Critical Java}
+using our real-time analysis framework described previously in
+Section~\ref{sec:stat-analys-comp-1}. The \textit{Safety Critical Java}
 (SCJ) specification we use for real-time analysis avoids garbage
 collection (GC) and hence, GC overheads and unpredictability are
 completely avoided.
@@ -267,8 +268,8 @@ As a first step, BCRT and WCRT were calculated for all examples. Given
 the real-time \texttt{wait\-\_inbetween (M..N)} provided by programmers,
 required logical delay \textit{d} was determined by applying
 Algorithm~\ref{alg:1}. In HRTCS, real-time delay of the range
-50.3..200.3 (ms) is only satisfied when \emph{d} is between 1272 and
-1739 (as shown previously in Section~\ref{sec:find-logic-delay}). Delay
+50.3..200.3 (ms) is only satisfied when \emph{d} is between 1506 and
+1788 (as shown previously in Section~\ref{sec:find-logic-delay}). Delay
 2.7..10.6 (ms) is satisfied in Printer/CD1 with \emph{d} of 143..163.
 Similarly, Printer/CD2 satisfies real-time ranges of 1.2..30.3 (ms) and
 5.6..100.2 (ms) when \emph{d} is 46..617 and 213..2041, respectively. It
@@ -317,10 +318,10 @@ techniques (Table~\ref{fig:comparison}).
 			ylabel=Difference factor,
 		]
 			\addplot + [black,fill=white,postaction={pattern=north east lines}] coordinates
-			{(HRTCS,1)(Printer/CD1,1)(Printer/CD2,1)(AECS/CD1,1)(AECS/CD2,1.94)};
+			{(HRTCS,1)(Printer/CD1,1)(Printer/CD2,1)(AECS/CD1,1)(AECS/CD2,2.33)};
 			\addplot + [black,fill=white,postaction={pattern=north west
                           lines}] coordinates 
-                        {(Printer/CD2, 1)(AECS/CD2, 1.94)};
+                        {(Printer/CD2, 1)(AECS/CD2, 2.33)};
 	\end{axis}
 \end{tikzpicture}
 \begin{tikzpicture}[scale=0.9]
@@ -383,7 +384,8 @@ segments of code from AECS whose WCRT is reduced by such a technique.
     \begin{minipage}[b]{0.45\linewidth}
 		\begin{lstlisting}[style=sysj,morekeywords={present,emit,trap,pause,exit,delay,suspend}]
 present(EntryRequest)
-// obtaining signal value
+// obtaining 
+// signal value
   id = #EntryRequest;
 else
   id = #ExitRequest;
@@ -401,7 +403,8 @@ present(EntryRequest)
   id = #EntryRequest;
 else
   id = #ExitRequest;
-pause; // Inserting pause
+// Inserting pause
+pause; 
 if(E.isValiedRequest(id)){
   // code ..
 }

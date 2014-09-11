@@ -305,14 +305,14 @@ optimizations. % We require timing
 % analyzable platforms, in our case \textit{Java Optimized Processor}
 % (JOP)~\cite{jop:jnl:jsa2007}.
 It is worth pointing out that since all rewrites, including the rewrite
-for the wait constructs happen before WCRT/BCRT analysis, this analysis
-incorporates the affects of the introduction of the wait
-statements. Moreover, since Algorithms~\ref{alg:1} and~\ref{alg:2} are
-performed after scheduling for different constraints such as faster
-execution time, or reduced power consumption, we inherently satisfy the
-criteria of exploiting non-maximal parallelism. The low-level analysis
-guarantees a precise WCRT/BCRT for the logical tick, which is then used
-for calculating $d$ in Figure~\ref{fig:3}.
+for the wait constructs, happen before WCRT/BCRT analysis, this analysis
+incorporates the affects of the introduction of the wait statements.
+Moreover, since Algorithms~\ref{alg:1} and~\ref{alg:2} are performed
+after scheduling for different constraints such as faster execution
+time, or reduced power consumption, we inherently satisfy the criteria
+of exploiting non-maximal parallelism. The low-level analysis guarantees
+a precise WCRT/BCRT for the logical tick, which is then used for
+calculating $d$ in Figure~\ref{fig:3}.
 
 Our compiler has a switch that enables over-appro\-ximation as described
 in Section~\ref{sec:extend-tehcn-vari} provided the wait requirements
@@ -392,11 +392,13 @@ ReCOP clock cycles; fetch, decode and execution cycle.
 
 \begin{figure*}[t!]
   % \centering
+	\hspace{-10pt}
   \begin{SubFloat}{\label{fig:6a} TAGRC of the HRTCS SystemJ program}
     \includegraphics[scale=0.4]{AGRC}
   \end{SubFloat}
+	\hspace{-20pt}
   \begin{SubFloat}{\label{fig:6b} TA of first CD in HRTCS}
-    \includegraphics[scale=0.43]{Uppaal}
+    \includegraphics[scale=0.55]{Uppaal}
   \end{SubFloat}
   \caption{TAGRC of the HRTCS program and its corresponding TA
     translation}
@@ -487,17 +489,17 @@ and later decoded via the \textit{Enter Node} and \textit{Switch Node},
 respectively. Similarly, the current termination context of the
 reactions is captured via \textit{Termination Node}. Finally,
 instantaneous actions such as emit, and Java data-computations are
-represented as \textit{Action Node} and branching constructs are
+represented as \textit{Action Node} and branching constructs, for
+testing status of signals and result of data computation, are
 represented with the \textit{Test Node}. A single execution of the AGRC
 from the \textit{AforkNode} to the \textit{Ajoin Node} represent a
-single tick transition for any given CD in the original SystemJ
-program. Different branches of \textit{Switch Node} and \textit{Test
-  Node} might be traversed, for any given tick transition, depending
-upon the current state of the program including signal statuses and
-values. On the other hand, every branch of a \textit{Fork Node} is
-executed in every tick transition. Moreover, the order of execution of
-these \textit{Fork Node} branches is irrelevant (see~\cite{amal10} for
-more details).
+single tick transition for any given CD in the original SystemJ program.
+Different branches of \textit{Switch Node} and \textit{Test Node} might
+be traversed, for any given tick transition, depending upon the current
+state of the program including signal statuses and values. On the other
+hand, every branch of a \textit{Fork Node} is executed in every tick
+transition. Moreover, the order of execution of these \textit{Fork Node}
+branches is irrelevant (see~\cite{amal10} for more details).
 
 Figure~\ref{fig:6b} shows the TA~\footnote{Timed Automaton} of CD 1 from
 Figure~\ref{fig:6a}. This TA is input into the Uppaal model-checker for
@@ -538,9 +540,9 @@ status and value updates on this transition.
 
 We model the tight WCRT/BCRT analysis problem as verifying a
 \textit{Computational Tree Logic} (CTL) property in UPPAAL model
-checker. Herein we explain how the tight WCRT is obtained, obtaining the
+checker. Herein we explain how the tight WCRT is obtained. Obtaining the
 tight BCRT follows an analogous procedure. The tight WCRT, named
-WCRTtight, is the objective of WCRT analysis. WCRT-tight lies in the
+WCRTtight, is the objective of WCRT analysis. WCRTtight lies in the
 bounded range denoted by [WCRTlb, WCRTub]. WCRTub is a safe upper-bound
 of WCRT obtained by applying Max-Plus algebra~\cite{boldt07} to the
 TGRC, which is essentially summing up the maximum tick execution time of

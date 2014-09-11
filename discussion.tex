@@ -5,7 +5,7 @@ We dedicate this section to discuss the details of the real-time wait
 construct semantics, its advantages and limitations in a reactive
 setting.
 
-\subsection{Programming using the wait\_exact construct -- the
+\subsection{Programming using the \texttt{wait\_exact} construct -- the
   periodic reactions}
 \label{sec:progr-using-delay}
 
@@ -130,7 +130,7 @@ of the scope of this work.
 \label{sec:need-time-analyzable}
 
 The solution for introducing real-time as first class language
-constructs introduced in this paper rely on platforms that allow
+constructs introduced in this paper relies on platforms that allow
 computing the WCRT and the BCRT of the program. Many might consider this
 to be too much of a restriction. In this section we debunk this
 \textit{perceived} disadvantage.
@@ -171,13 +171,13 @@ using external timers as in~\cite{rsh94}.
 \end{figure}
 
 As identified in~\cite{Bourke2009a} \texttt{suspend} does not play well
-with the external timer. The program in Figure~\ref{fig:preemp} sends a
+with the external timer. The program in Figure~\ref{fig:preemp} emits a
 signal to an external timer and waits for 10 ms to pass by. Consider
 what happens when signals \texttt{S} and \texttt{TIMER} occur in the
 same logical tick, the \texttt{await} statement is never executed (due
-to suspend) and hence, we enter a deadlock. Such problems are completely
-avoided in our technique, because we convert the real-time wait
-constructs into logical waits (\texttt{pause} constructs), which
+to \texttt{suspend}) and hence, we enter a deadlock. Such problems are
+completely avoided in our technique, because we convert the real-time
+wait constructs into logical waits (\texttt{pause} constructs), which
 interact well with preemption.  Furthermore, synchronous languages have
 always been targeted at real-time analyzable platforms and constrained
 environments~\cite{DBLP:journals/pieee/SifakisTY03,boldt07}. One can use
