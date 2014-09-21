@@ -265,9 +265,9 @@ constructs), just like in hardware design, which is very
 \paragraph{Periodic execution of the clock domains}
 \label{sec:peri-exec-clock}
 
-The aforementioned technique maintains the essence of synchronous and
-GALS programs -- the logical tick, but in doing so is unable to provide
-the exact real-time wait of $M$ time units in case of
+The aforementioned relaxation technique maintains the essence of
+synchronous and GALS programs -- the logical tick, but in doing so is
+unable to provide the exact real-time wait of $M$ time units in case of
 \texttt{wait\_exact(M)} statement, or is unable to provide a
 postponement in the region of $[M, N]$ time units in the case of
 \texttt{wait\_inbetween (M..N)} statement, thereby violating their
@@ -279,8 +279,8 @@ the CD periodically at the WCRT, we can choose the value of \textit{d}
 from set $S1$. This technique allows meeting the synchronous hypothesis,
 while at the same time guaranteeing the semantics of the
 \texttt{wait\_exact(M)} statement. This technique trades-off reduced
-average reaction time and increased power consumption while providing
-exact postponement.
+average reaction time against increased power consumption while
+providing exact postponement.
 
 We believe that the designer should be allowed to choose from either of
 these techniques and hence, provide this option via compiler switches.
@@ -295,24 +295,23 @@ these techniques and hence, provide this option via compiler switches.
   \label{fig:4}
 \end{figure}
 
-The interaction of the low-level execution platform and the described
-high-level technique of introducing real-time waits in the SystemJ
-language is shown in Figure~\ref{fig:4}. The numerical annotations in
-Figure~\ref{fig:4} show the sequence of steps in the compilation
-procedure. We use static analysis techniques to find out the WCRT/BCRT
-of the programs automatically after rewrites and standard compiler
-optimizations. % We require timing
-% analyzable platforms, in our case \textit{Java Optimized Processor}
-% (JOP)~\cite{jop:jnl:jsa2007}.
-It is worth pointing out that since all rewrites, including the rewrite
-for the wait constructs, happen before WCRT/BCRT analysis, this analysis
-incorporates the affects of the introduction of the wait statements.
-Moreover, since Algorithms~\ref{alg:1} and~\ref{alg:2} are performed
-after scheduling for different constraints such as faster execution
-time, or reduced power consumption, we inherently satisfy the criteria
-of exploiting non-maximal parallelism. The low-level analysis guarantees
-a precise WCRT/BCRT for the logical tick, which is then used for
-calculating $d$ in Figure~\ref{fig:3}.
+The interaction of the target execution platform, the tool-chain flow,
+and the described high-level technique of introducing real-time waits in
+the SystemJ language is shown in Figure~\ref{fig:4}. The numerical
+annotations in Figure~\ref{fig:4} show the sequence of steps in the
+compilation procedure. We use static analysis techniques
+(see~\cite{zli14} for a more in depth look at our techniques) to find
+out the WCRT/BCRT of the programs automatically after rewrites and
+standard compiler optimization.  It is worth pointing out that since all
+rewrites, including the rewrite for the wait constructs, happen before
+WCRT/BCRT analysis, this analysis incorporates the affects of the
+introduction of the wait statements.  Moreover, since
+Algorithms~\ref{alg:1} and~\ref{alg:2} are performed after scheduling
+for different constraints such as faster execution time, or reduced
+power consumption, we inherently satisfy the criteria of exploiting
+non-maximal parallelism. The low-level analysis guarantees a precise
+WCRT/BCRT for the logical tick, which is then used for calculating $d$
+in Figure~\ref{fig:3}.
 
 Our compiler has a switch that enables over-appro\-ximation as described
 in Section~\ref{sec:extend-tehcn-vari} provided the wait requirements
@@ -320,12 +319,12 @@ are not met. If this compiler switch is not enabled, the compiler simply
 decides to execute the CD periodically, where the period is the
 WCRT. WCRT effects the over-approximation and the period of the CD,
 irrespective of the solution that the system designer chooses. A large
-WCRT results in reduced performance and hence it is essential that the
-WCRT be optimized. One can optimize the WCRT of any CD by breaking the
-critical paths using the \texttt{pause} construct as we show later in
-Section~\ref{sec:experimental-results}.
+WCRT value results in reduced performance and hence it is essential that
+the WCRT be reduced. One can reduce the WCRT value of any CD by breaking
+the critical paths in the program using the \texttt{pause} construct as
+we show later in Section~\ref{sec:experimental-results}.
 
-In the following subsections we describe: (1) the time analyzable
+In the following subsections we describe: (1) the time analyzable target
 architecture and the corresponding SystemJ program execution model and
 (2) the static analysis techniques used to compute the WCRT/BCRT of a
 SystemJ program.
@@ -338,40 +337,48 @@ SystemJ programs integrate both control-driven and data-driven
 operations. Implementing both these types of operations on a single
 processor has been shown to be
 inefficient~\cite{DBLP:journals/tecs/SalcicM13}, generally resulting in
-large code size and slow execution speed. In order to achieve efficient
-execution, the control-driven and data-driven operations are separated
-at the compiler back-end and then mapped onto dedicated processing
-units; a control processor and a data processor,
+large code size and longer execution times. In order to achieve
+efficient execution, the control-driven and data-driven operations are
+separated at the compiler back-end and then mapped onto dedicated
+processing units; a control processor and a data processor,
 respectively~\cite{DBLP:journals/tecs/SalcicM13}. Both processors work
 in tandem, hence the resultant architecture is also termed the
 \textit{Tandem Processor} (TP).
 
-The program control flow representing control-driven operations is named
-Concurrency and Reactivity Control Flow (CRCF). Besides control flow of
-the reactions, CRCF also includes scheduling of all reactions and CDs,
-communication between reactions and CDs, and communication with the
-environment. CRCF code is executed on the control processor. On the
-other hand, the control flow of data-driven operations is called Java
-Control Flow (JCF), since all data computations of SystemJ programs are
-compiled to Java bytecodes running on the data processor. With this
-separation, SystemJ program execution is initiated and directed by the
-CRCF; whenever a Java data computation is required, the execution is
-switched to JCF and returns to CRCF again upon completion.
+The control flow of individual reactions within each CD and the
+concurrent execution of multiple reactions within a CD is termed
+Concurrency and Reactivity Control Flow (CRCF). Besides control flow
+within the reactions, CRCF also includes scheduling of all reactions
+within the CDs, communication between reactions in different CDs, and
+communication between reactions and their respective environments. CRCF
+code is executed on the control processor. On the other hand, the
+control flow of data-driven operations is called Java Control Flow
+(JCF), since all data computations of SystemJ programs are compiled to
+Java bytecodes running on the data processor. With this separation,
+SystemJ program execution is initiated and directed by the CRCF;
+whenever a Java data computation is required, the execution is switched
+to JCF and returns to CRCF again upon completion.
 
-In this work we choose a multi-core platform named TP-JOP as our target
-execution platform. TP-JOP execution platform uses Reactivity and
-COncurrency Processor (ReCOP)~\cite{DBLP:journals/tecs/SalcicM13} as the
-control processor and Java Optimized Processor
-(JOP)~\cite{jop:jnl:jsa2007} as the data processor. TP-JOP is based on
-the idea of Tandem Processor (TP) proposed
+\begin{figure}[t!]
+  \centering
+  \includegraphics[scale=0.8]{ArchG}
+  \caption{The target TP-JOP execution architecture}
+  \label{fig:8}
+\end{figure}
+
+In this work we choose a multi-core platform named TP-JOP
+(cf. Figure~\ref{fig:8}) as our target execution platform. TP-JOP
+execution platform uses Reactivity and COncurrency Processor
+(ReCOP)~\cite{DBLP:journals/tecs/SalcicM13} as the control processor and
+Java Optimized Processor (JOP)~\cite{jop:jnl:jsa2007} as the data
+processor. TP-JOP is based on the idea of Tandem Processor (TP) proposed
 in~\cite{DBLP:journals/tecs/SalcicM13} with different implementation for
 the data processor. Both ReCOP and JOP are designed with time-analyzable
-features, which make WCRT/BCRT analysis of SystemJ programs feasible on
-TP-JOP. The block diagram of TP-JOP is shown in Figure~\ref{fig:4} --
-denoted as \textit{Architecture
-  Graph}. % Note here in our work there is no
-% interleaving between the execution of ReCOP and JOP, resulting in a
-% sequential execution pattern that simplifies the timing analysis.
+features, which make WCRT/BCRT analysis of SystemJ programs feasible for
+TP-JOP. % The block diagram of TP-JOP is shown in Figure~\ref{fig:4} --
+% denoted as \textit{Architecture Graph}.  Note here in our work there
+% is no interleaving between the execution of ReCOP and JOP, resulting
+% in a sequential execution pattern that simplifies the timing analysis.
 
 JOP is a real-time analyzable soft-core processor targeted at execution
 of Java programs in an embedded environment~\cite{jop:jnl:jsa2007}. A
@@ -391,14 +398,13 @@ ReCOP clock cycles; fetch, decode and execution cycle.
 \label{sec:stat-analys-comp-1}
 
 \begin{figure*}[t!]
-  % \centering
-	\hspace{-10pt}
+  \centering
   \begin{SubFloat}{\label{fig:6a} TAGRC of the HRTCS SystemJ program}
-    \includegraphics[scale=0.4]{AGRC}
+    \includegraphics[scale=0.6]{AGRC}
   \end{SubFloat}
-	\hspace{-20pt}
+
   \begin{SubFloat}{\label{fig:6b} TA of first CD in HRTCS}
-    \includegraphics[scale=0.55]{Uppaal}
+    \includegraphics[scale=0.5]{Uppaal}
   \end{SubFloat}
   \caption{TAGRC of the HRTCS program and its corresponding TA
     translation}
@@ -432,11 +438,20 @@ latter performs WCET analysis for CRCF code by counting the number of
 assembly instructions for any AGRC node and deriving the WCET result
 based on the micro-architecture level analysis of ReCOP. The original
 AGRC is then back-annotated with the node-level WCET information
-acquired from step 3 to obtain Timed Asynchronous GRaph Code (TAGRC). It
-is important to note that the WCET analyzers for JOP and ReCOP only work
-on basic-blocks~\footnote{Sequential code with single entry and exit
-  points without branches.} and hence, WCET and BCET~\footnote{Best Case
-  Execution Time.} are the same for individual AGRC nodes.
+acquired from step 3 to obtain Timed Asynchronous GRaph Code (TAGRC). 
+
+
+One needs the WCET value of each node in the AGRC for computing the
+overall WCRT for each CD. Similarly, the \textit{Best Case Execution
+  Time} (BCET) of each AGRC node is needed when computing the BCRT of
+each CD. If these nodes are basic-blocks -- sequential code with single
+entry and exit points without branches, the WCET and BCET of the node
+are same. If the node itself contains branches then WCET and BCET of
+each node is different and needs to be computed as such. The compiler
+can make sure that each AGRC node is indeed a basic-block (so that the
+WCA analysis tool for JOP and the WCET analyzer for ReCOP remain
+unchanged) and all (CRCF and JCF) branches are represented as explicit
+edges in the AGRC.
 
 AGRC extends the GRaph Code (GRC)~\cite{pbat07} with asynchrony by
 composing separate GRCs, one for every CD in the program. In order to
@@ -498,8 +513,9 @@ Different branches of \textit{Switch Node} and \textit{Test Node} might
 be traversed, for any given tick transition, depending upon the current
 state of the program including signal statuses and values. On the other
 hand, every branch of a \textit{Fork Node} is executed in every tick
-transition. Moreover, the order of execution of these \textit{Fork Node}
-branches is irrelevant (see~\cite{amal10} for more details).
+transition. % Moreover, the order of execution of these \textit{Fork
+            % Node}
+% branches is irrelevant (see~\cite{amal10} for more details).
 
 Figure~\ref{fig:6b} shows the TA~\footnote{Timed Automaton} of CD 1 from
 Figure~\ref{fig:6a}. This TA is input into the Uppaal model-checker for
@@ -523,20 +539,21 @@ As stated previously, a bounded integer (\texttt{wcrt}) is used to count
 the total execution time for a single tick transition for any given
 CD. Therefore, \textit{every} transition in the TA is annotated with an
 assignment that increases the integer \texttt{wcrt} by the WCET value of
-the target location. Due to the semantics of AGRC nodes related with
-control flow, modifications are needed to the TA to correctly model the
-execution flow. Since the order of execution of the synchronous parallel
-reactions forked by the \textit{Fork Node} is irrelevant, one can run
-reactions cyclically. This cyclic execution flow of synchronous parallel
-reactions is captured in the TA by inserting a back-edge from the
-\textit{Join Node} (e.g., J2) to its corresponding \textit{Fork Node}
-(e.g., F2). Furthermore, since a tick transition for every CD starts at
-\textit{Afork Node} and finishes at the \textit{Ajoin Node}, there
-should be a transition from \textit{Ajoin Node} back to \textit{Afork
-  Node} to model the repeating CD tick transitions. The bounded integer
-\texttt{wcrt} also needs to be cleared during this transition. Finally,
-communication of this CD with its environment is also modeled as signal
-status and value updates on this transition.
+the target location. Note that WCRT value of a target node might be
+zero. For example the \textit{Join Node} has a WCET value of zero. Due
+to the semantics of AGRC nodes related with control flow, modifications
+are needed to the TA to correctly model the execution flow. We use
+cyclic executive scheduling (see~\cite{amal10} for further details) for
+synchronous parallel reactions within a CD. This cyclic execution flow
+of synchronous parallel reactions is captured in the TA by inserting a
+back-edge from the \textit{Join Node} (e.g., J2) to its corresponding
+\textit{Fork Node} (e.g., F2). Furthermore, since a tick transition for
+every CD starts at \textit{Afork Node} and finishes at the \textit{Ajoin
+  Node}, there should be a transition from \textit{Ajoin Node} back to
+\textit{Afork Node} to model the repeating CD tick transitions. The
+bounded integer \texttt{wcrt} also needs to be cleared during this
+transition. Finally, communication of this CD with its environment is
+also modeled as signal status and value updates on this transition.
 
 We model the tight WCRT/BCRT analysis problem as verifying a
 \textit{Computational Tree Logic} (CTL) property in UPPAAL model
@@ -545,16 +562,20 @@ tight BCRT follows an analogous procedure. The tight WCRT, named
 WCRTtight, is the objective of WCRT analysis. WCRTtight lies in the
 bounded range denoted by [WCRTlb, WCRTub]. WCRTub is a safe upper-bound
 of WCRT obtained by applying Max-Plus algebra~\cite{boldt07} to the
-TGRC, which is essentially summing up the maximum tick execution time of
-every reaction in the CD. Similarly, we calculate a lower-bound of WCRT,
-termed WCRTlb, by summing up the minimum tick execution time of every
-reaction in the CD. After translating TGRC to the TA, we check the
+TGRC, which involves essentially summing up the maximum tick execution
+time of every reaction in the CD. Similarly, we calculate a lower-bound
+of WCRT, termed WCRTlb, by summing up the minimum tick execution time of
+every reaction in the CD. After translating TGRC to the TA, we check the
 validity of a WCRT estimate of the CD, termed WCRTest, by verifying a
 CTL property upon the TA using UPPAAL model checker. The CTL property is
-written as \texttt{A[](wcrt ≤ WCRTest)}, meaning that the value of
-integer \texttt{wcrt} is less or equal to the WCRTest for every path
-starting from the initial location. In order to minimize the number of
-queries, we use standard binary search algorithm to find WCRTtight.
+written as \texttt{A[](wcrt $\leq$ WCRTest)}, meaning that the value of
+integer \texttt{wcrt} is less or equal to some value WCRTest for every
+path starting from the initial location. In order to minimize the number
+of queries, we use standard binary search algorithm to find
+WCRTtight. For the very first query in this binary search procedure,
+WCRTest is set to $\frac{WCRTub - WCRTlb}{2}$. From the second query on
+wards, WCRTest is recalculated depending upon the result of the previous
+query: satisfied or not satisfied.
 
 
 % The system designer can then either set the compiler switch or change
