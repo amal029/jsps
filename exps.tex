@@ -301,6 +301,12 @@ techniques (Table~\ref{fig:comparison}).
 % wait specification (Table~\ref{fig:benchlist}) does not have an upper
 % bound.
 
+\definecolor{cc1}{cmyk}{0,0,0,0}
+\definecolor{cc2}{cmyk}{0,0,0,0.2}
+\definecolor{cc3}{cmyk}{0,0,0,0.5}
+\definecolor{cc4}{cmyk}{0,0,0,0.8}
+\definecolor{cc5}{cmyk}{0,0,0,1}
+
 \begin{figure}[h!]
 	\centering
 \begin{tikzpicture}[scale=0.9]
@@ -319,10 +325,9 @@ techniques (Table~\ref{fig:comparison}).
 			x tick label style={rotate=45,font=\footnotesize},
 			ylabel=Difference factor,
 		]
-			\addplot + [black,fill=white,postaction={pattern=north east lines}] coordinates
+			\addplot + [black,fill=cc1] coordinates
 			{(HRTCS,1)(Printer/CD1,1)(Printer/CD2,1)(AECS/CD1,1)(AECS/CD2,2.33)};
-			\addplot + [black,fill=white,postaction={pattern=north west
-                          lines}] coordinates 
+			\addplot + [black,fill=cc2] coordinates 
                         {(Printer/CD2, 1)(AECS/CD2, 2.33)};
 	\end{axis}
 \end{tikzpicture}
@@ -350,15 +355,15 @@ techniques (Table~\ref{fig:comparison}).
 			}
 %      nodes near coords
 		]
-			\addplot + [black,fill=white,postaction={pattern=north east lines}] coordinates
+			\addplot + [black,fill=cc1] coordinates
                         {(Motor, 2.60)};
-			\addplot + [black,fill=white,postaction={pattern=north west lines}] coordinates
+			\addplot + [black,fill=cc2] coordinates
                         {(Motor, 2.63)};
-			\addplot + [black,fill=white,postaction={pattern=dots}] coordinates
+			\addplot + [black,fill=cc3] coordinates
                         {(Motor, 4.39)};
-			\addplot + [black,fill=white,postaction={pattern=horizontal lines}] coordinates
+			\addplot + [black,fill=cc4] coordinates
                         {(Motor, 2.92)};
-			\addplot + [black,fill=white,postaction={pattern=crosshatch}] coordinates
+			\addplot + [black,fill=cc5] coordinates
                         {(Motor, 2.69)};
 			\legend{Delay1,Delay2,Delay3,Delay4,Delay5}
 	\end{axis}
@@ -487,15 +492,15 @@ application (i.e. data or control dominated).
 				legend columns=-1,
 			}
 		]
-			\addplot + [black,fill=white,postaction={pattern=north east lines}] coordinates
+			\addplot + [black,fill=cc1] coordinates
                         {(Motor, 8.05) (AECS/CD2, 11.82)};
-			\addplot + [black,fill=white,postaction={pattern=north west lines}] coordinates
+			\addplot + [black,fill=cc2] coordinates
                         {(Motor, 8.00) (AECS/CD2, 11.82)};
-			\addplot + [black,fill=white,postaction={pattern=dots}] coordinates
+			\addplot + [black,fill=cc3] coordinates
                         {(Motor, 6.42)};
-			\addplot + [black,fill=white,postaction={pattern=horizontal lines}] coordinates
+			\addplot + [black,fill=cc4] coordinates
                         {(Motor, 7.53)};
-			\addplot + [black,fill=white,postaction={pattern=crosshatch}] coordinates
+			\addplot + [black,fill=cc5] coordinates
                         {(Motor, 7.89)};
 			\legend{Delay1,Delay2,Delay3,Delay4,Delay5}
 	\end{axis}
