@@ -13,11 +13,27 @@ reactive language SystemJ}
 Real-time operating systems~\cite{barry2009using} usually provide two
 types of mechanisms for introducing real-time in the developed program:
 (1) the ability to perform a timeout and (2) the ability to run tasks
-periodically with some real-time period $T$. We would like to provide
-similar mechanisms in reactive languages for real-time program
-development. In fact, we provide \textit{exact} and \textit{non exact}
-real-time control mechanisms -- a generalization of the two real-time
-mechanisms introduced in real-time operating systems.
+periodically with some real-time period $T$. These mechanisms are
+essential in many real-time applications for ensuring the correctness of
+the program's behaviors. For example, an alarm controller for a retail
+store may be required to wait for a specific amount of time, allowing an
+owner to enter a password, before it triggers an alarm sound. In a
+safety-critical applications, such as an artificial cardiac pacemaker
+\cite{Singh:2012:CPC:2388936.2388948}, such real-time features are
+indispensable; a pacemaker must be able to correctly monitor time
+intervals between the heart's native electrical pulse in order to
+control abnormal heart rhythms. Nevertheless, lack of real-time
+constructs in the reactive languages \cite{gber931,amal10} makes them
+difficult to be used in many real-time applications.
+
+In order to close this gap, we would like to provide similar mechanisms
+in reactive languages for real-time program development. In fact, we
+provide \textit{exact} and \textit{non exact} real-time control
+mechanisms -- a generalization of the two real-time mechanisms
+introduced in real-time operating systems. In this section, a program
+written in a reactive language called SystemJ is used as a motivating
+example to illustrate the usefulness of such real-time control
+statements.
 
 \subsubsection{Programming using the non exact real-time control
   construct; the \textrm{\texttt{wait\_inbetween}} statement}
@@ -37,7 +53,7 @@ while(true) {
     || // synchronous parallel operator
     {
      //exit after any where from 50.3 to 200.3 ms.
-     wait_inbetween (50.3 .. 200.3 ms); 
+     wait_inbetween(50.3 .. 200.3 ms); 
      exit(T); 
     } // reaction R2
    } do {send S(1);} // Send 1 if touched 
@@ -55,7 +71,7 @@ while(true) {
 \begin{SubFloat}{\label{d:b}Timing diagram -- the X-axis shows the
     execution of the \texttt{wait\_inbetween} statement. The Y-axis is
     the time elapsed. The arrow shows one example of the expiration of
-    the \mbox{\texttt{wait\_inbetween (50.3..200.3 ms)}} statement.}
+    the \mbox{\texttt{wait\_inbetween(50.3..200.3 ms)}} statement.}
   % \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.7]{FF1}
@@ -68,7 +84,7 @@ while(true) {
 \label{fig:1}
 \end{figure}
 
-The \texttt{wait\_inbetween (M..N)} statement postpones the program
+The \texttt{wait\_inbetween(M..N)} statement postpones the program
 control flow from proceeding to the following statement for a minimum of
 $M$ time units and a maximum of $N$ time units, as shown in
 Figure~\ref{d:b}.
@@ -84,13 +100,14 @@ responsiveness can be based on the collected data.
 
 The SystemJ pseudo-code~\cite{amal10} for such a system, along with the
 expected timing behavior of the \texttt{wait\-\_inbetween} statement, is
-shown in Figure~\ref{delay:a}. We use the SystemJ language in this paper,
-because being a \textit{Globally Asynchronous Locally Synchronous}
-(GALS) language it helps us easily describe a larger class of systems
-(like HRTCS in Figure~\ref{delay:a}) compared to purely synchronous
-languages like Esterel. Moreover, being a super-set of Esterel, SystemJ
-allows us to explore the marriage of real-time and logical time not only
-in the GALS, but also in the synchronous setting.
+shown in Figure~\ref{delay:a}. We use the SystemJ language in this
+paper, because being a \textit{Globally Asynchronous Locally
+Synchronous} (GALS) language it helps us easily describe a larger class
+of systems (like HRTCS in Figure~\ref{delay:a}) compared to purely
+synchronous languages like Esterel \cite{gber931}. Moreover, being a
+super-set of Esterel, SystemJ allows us to explore the marriage of
+real-time and logical time not only in the GALS, but also in the
+synchronous setting.
 
 The SystemJ program in Figure~\ref{delay:a} is divided into two
 \hj{mutually asynchronous} clock-domains, the first clock-domain
@@ -129,14 +146,14 @@ trap(T){
 \begin{SubFloat}{\label{dd:b}Timing diagram -- the X-axis shows the
     execution of the \texttt{wait\_atleast} statement. The Y-axis is the
     time elapsed. The arrow shows one possible expiration of
-    \texttt{wait\_atleast (10000 ms)} statement.}
+    \texttt{wait\_atleast(10000 ms)} statement.}
 \includegraphics[scale=0.7]{FF2}
 \end{SubFloat}
 \caption{Programming a timeout with \texttt{wait\_atleast}}
 \label{dd}
 \end{figure}
 
-The \texttt{wait\_atleast (M)} statement is used to postpone the program
+The \texttt{wait\_atleast(M)} statement is used to postpone the program
 control flow from proceeding to the next statment for a minimum of $M$
 time units. The maximum postponement is unbounded, but countable
 (Figure~\ref{dd:b}).
@@ -168,7 +185,7 @@ statement is useful for programming low priority tasks.
 The previous wait statements are non exact, i.e., the \hj{time of}
 execution of the statement following the wait statement cannot be
 controlled exactly. The final variant we introduce allows doing exactly
-that. We call it \texttt{wait\_exact} and this statement can be used to
+that. We call it \texttt{wait\_exact(M)} and this statement can be used to
 program exact timeouts, periodic tasks, etc.
 
 \begin{figure}[t!]
@@ -187,7 +204,7 @@ while(true) {
 \begin{SubFloat}{\label{p1:b}Timing diagram -- the X-axis shows the
     execution of the \texttt{wait\_exact} statement. The Y-axis is the
     time elapsed. The arrow shows the \textit{only} possible expiration
-    of the \texttt{wait\_exact (1 ms)} statement.}
+    of the \texttt{wait\_exact(1 ms)} statement.}
   \includegraphics[scale=0.7]{FF3}
 \end{SubFloat}
   \caption{Programming a periodic task with wait\_exact}
@@ -197,7 +214,7 @@ while(true) {
 
 One such example; periodic emission of a signal to the environment is
 shown in Figure~\ref{pp:aa}. As before, upon execution of
-\texttt{wait\_exact (1 ms)} statement, the time starts elapsing. But,
+\texttt{wait\_exact(1 ms)} statement, the time starts elapsing. But,
 unlike in previous cases the following statement needs to be executed
 exactly after 1 ms has passed, as shown in Figure~\ref{p1:b}.
 

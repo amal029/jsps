@@ -2,9 +2,9 @@
 \label{sec:intr-real-time}
 
 We introduce a single \textit{derived} statement called
-\texttt{wait\-\_inbetween (M..N)}, built from kernel constructs, in the
+\texttt{wait\-\_inbetween(M..N)}, built from kernel constructs, in the
 SystemJ language for real-time control. The other two constructs
-\texttt{wait\-\_atleast (M)} and \mbox{\texttt{wait\_exact (M)}} are
+\texttt{wait\-\_atleast(M)} and \mbox{\texttt{wait\_exact(M)}} are
 variants of this single derived construct.
 
 % The resolution of the delay statement is of secondary concern and is
@@ -22,7 +22,7 @@ variants of this single derived construct.
 %   \label{fig:5}
 % \end{figure}
 
-Given a  SystemJ program:  \texttt{wait\_inbetween (M..N); p},  where $M
+Given a  SystemJ program:  \texttt{wait\_inbetween(M..N); p},  where $M
 \in  \mathbb{Q}^{>0}$  and $N  \in  \mathbb{Q}^{>0}$,  statement $p$  is
 executed after  real-time postponement  of $\tau$  units, such  that, $M
 \leq \tau \leq N$.
@@ -30,14 +30,14 @@ executed after  real-time postponement  of $\tau$  units, such  that, $M
 We also introduce two variants of the derived statement
 \texttt{wait\_inbetween}.
 \begin{enumerate*}
-\item Given a SystemJ program \texttt{wait\_atleast (M); p}, where $M
-  \in \mathbb{Q}^{>0}$, statement $p$ is executed after real-time
-  postponement of $\tau$ units, such that, $M \leq \tau < \infty$. It is
-  important to note that the lower bound of the wait construct; $M$ is
-  \textit{not} an exact postponement, but rather the control is allowed
-  to proceed to the next statement anytime after waiting for \textit{at
-    least} $M$ times units.
-\item Given a SystemJ program \texttt{wait\_exact (M); p}, where $M \in
+\item Given a SystemJ program \texttt{wait\_atleast(M); p }, where $M \in
+	\mathbb{Q}^{>0}$, statement $p$ is executed after real-time
+	postponement of $\tau$ units, such that, $M \leq \tau < \infty$. It is
+	important to note that the lower bound of the wait construct; $M$ is
+	\textit{not} an exact postponement, but rather the control is allowed
+	to proceed to the next statement anytime after waiting for \textit{at
+	least} $M$ times units.
+\item Given a SystemJ program \texttt{wait\_exact(M); p}, where $M \in
   \mathbb{Q}^{>0}$, statement $p$ is executed after real-time
   postponement of $\tau$ units, such that, $M \leq \tau \leq M$. In this
   variant, the waiting time is exact.
@@ -114,11 +114,11 @@ with the WCRT and BCRT of the program and hence the execution platform.
 The computation of \texttt{d} is shown in Algorithm~\ref{alg:1}. This
 algorithm is carried out for each CD (in SystemJ) or a synchronous
 program individually. \textit{The fundamental observation is -- the
-  reaction time for each logical tick is elastic -- varying only between
-  the BCRT and the WCRT, thus any number of logical ticks \texttt{d}
-  that map to the required real-time \mbox{\texttt{wait\_inbetween
-      (M..N)}} should be chosen in such a way that they are invariant to
-  this elasticity.}
+	reaction time for each logical tick is elastic -- varying only between
+	the BCRT and the WCRT, thus any number of logical ticks \texttt{d}
+	that map to the required real-time
+	\mbox{\texttt{wait\_inbetween(M..N)}} should be chosen in such a way
+	that they are invariant to this elasticity.}
 
 Our algorithm takes as input: WCRT, BCRT, and the lower and upper bounds
 $M$ and $N$, respectively, of the \texttt{wait\_inbetween} construct. We
@@ -193,7 +193,7 @@ performed. To our knowledge we are the first to do so.
 \label{sec:extend-techn-vari}
 
 The \texttt{wait\_atleast(M)} variant is easily accommodated in the
-technique. All one needs to do is find the set $S_1$ and choose a value
+technique. All one needs to do is find the set $S_2$ and choose a value
 from this set.
 
 \paragraph{The \texttt{wait\_exact(M)} construct}
@@ -261,6 +261,9 @@ large over-approximations can be avoided by breaking the critical paths
 (worst case ticks) in the program (by inserting \texttt{pause}
 constructs), just like in hardware design, which is very
 \textit{unsurprising} considering Esterel has its origins in hardware.
+We will show improving these approximations by breaking critical paths
+later in Section~\ref{sec:experimental-results}.
+
 
 \paragraph{Periodic execution of the clock domains}
 \label{sec:peri-exec-clock}
@@ -320,9 +323,11 @@ decides to execute the CD periodically, where the period is the
 WCRT. WCRT effects the over-approximation and the period of the CD,
 irrespective of the solution that the system designer chooses. A large
 WCRT value results in reduced performance and hence it is essential that
-the WCRT be reduced. One can reduce the WCRT value of any CD by breaking
-the critical paths in the program using the \texttt{pause} construct as
-we show later in Section~\ref{sec:experimental-results}.
+the WCRT be reduced.
+
+%One can reduce the WCRT value of any CD by breaking
+%the critical paths in the program using the \texttt{pause} construct as
+%we show later in Section~\ref{sec:experimental-results}.
 
 In the following subsections we describe: (1) the time analyzable target
 architecture and the corresponding SystemJ program execution model and

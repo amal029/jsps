@@ -379,10 +379,11 @@ impacts the value of WCRT. On the other hand, programmer can write a
 program such that large data (or control) computations in a single
 logical tick increase WCRT of the program.  Assuming we do not change
 the architecture of the execution platform (i.e. TP-JOP), the difference
-factor can only be reduced by modifying the benchmark programs such that
-the critical paths are broken up using additional \texttt{pause}
-constructs, thereby reducing the WCRT.  Figure~\ref{fig:improv} shows
-segments of code from AECS whose WCRT is reduced by such a technique.
+factor can only be reduced by modifying the benchmark programs, as
+stated earlier in Section~\ref{sec:extend-tehcn-vari}, such that the
+critical paths are broken up using additional \texttt{pause} constructs,
+thereby reducing the WCRT. Figure~\ref{fig:improv} shows segments of
+code from AECS whose WCRT is reduced by such a technique.
 
 \begin{figure}[h!]
 	\centering
