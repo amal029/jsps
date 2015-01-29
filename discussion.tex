@@ -81,6 +81,7 @@ rewrite in Figure~\ref{pp:b}.
   \centering
   \begin{SubFloat}{\label{pp:a}Original program}
     \centering
+		\begin{minipage}[b]{0.2\textwidth}
     \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,wait_exact}]
 while(true) {
  wait_exact(1 ms);
@@ -89,9 +90,10 @@ while(true) {
  emit S;
 }
 \end{lstlisting}
+\end{minipage}
 \end{SubFloat}
-\hspace{9pt}
   \begin{SubFloat}{\label{pp:b}Rewritten program}
+		\begin{minipage}[b]{0.2\textwidth}
     \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,delay}]
 while(true) {
  while(true) { 
@@ -110,6 +112,7 @@ while(true) {
  }
 }
 \end{lstlisting}
+\end{minipage}
   \end{SubFloat}
   \caption{Extra pause statements in periodic tasks}
   \label{fig:periodic2}
@@ -247,8 +250,8 @@ of preemption and waits, conversion of real-time wait constructs to
 logical ticks also interacts well with channel rendezvous, because the
 semantics of interaction are well defined~\cite{amal10}. More
 importantly, we need to consider the interplay of channel communication
-and WCRT/BCRT analysis. Since, channel communication does not stop
-logical time (see~\cite{amal10}) WCRT/BCRT are unaffected by channel
+and WCRT/BCRT analysis. Since channel communication does not stop
+logical time \cite{amal10} WCRT/BCRT are unaffected by channel
 communication. % The response time to input signals \textit{is} though!
 % But, we are unconcerned with the response time, analysis in this paper
 % and it remains a future research avenue.

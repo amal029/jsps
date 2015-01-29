@@ -7,8 +7,8 @@
 
 \begin{table}[tb]
 \centering
+\begin{minipage}{0.45\textwidth}
 \caption{SystemJ kernel statements and their meaning}
-\begin{minipage}{8cm}
   \begin{scriptsize}
    \begin{tabular}{|c|p{80pt}|}
      \hline                                                                                     
@@ -62,7 +62,7 @@ running at their individual pace, interacting with the environment via
 signals and with each other using CSP~\cite{choa85} style rendezvous via
 channels. Each CD has its own notion of logical time. CDs are composed
 of one or more units called reactions. These reactions themselves can be
-composed of children reaction forming a hierarchy. Each CD adheres to
+composed of child reactions forming a hierarchy. Each CD adheres to
 the \textit{perfect synchrony} hypothesis, i.e., all statements execute
 instantaneously in zero time. Only the \texttt{pause} statement consumes
 time, just like in Esterel~\cite{gber931}. Consider the SystemJ program
@@ -129,21 +129,21 @@ similarly, $\exists j \in N$, where $BCRT = min (\Delta_j)$.
 
 
 We denote the WCRT and BCRT in Figure~\ref{fig:2c} using \texttt{W} and
-\texttt{B}, respectively. Figure~\ref{fig:2c} shows a continuously
-running physical clock (analogous to a clock in digital hardware), the
-numerical annotations on the rising edge of the clock mark the logical
-ticks from Figure~\ref{fig:2c}. The subscripts \texttt{s} and \texttt{e}
-for the numbers show the start and end of the logical ticks,
-respectively. The end of a logical tick and the start of the next
-logical tick happen together. Figure~\ref{fig:2c} shows the mapping of
-the logical time to the physical time. For example, the logical tick
-\texttt{1} starts at the first rising edge and completes at the second
-rising edge of the physical clock, whereas logical tick \texttt{4}
-starts at the $4^{th}$ rising edge, but finishes at the $6^{th}$ rising
-edge of the physical clock. This difference can be accounted for by the
-Java computations required when signal \texttt{A} is input by the
-environment (see Figure~\ref{fig:2a}). This elasticity is inherent (and
-elegant) to both Esterel and SystemJ.
+\texttt{B}, respectively. It shows a continuously running physical clock
+(analogous to a clock in digital hardware), the numerical annotations on
+the rising edge of the clock mark the logical ticks from
+Figure~\ref{fig:2c}. The subscripts \texttt{s} and \texttt{e} for the
+numbers show the start and end of the logical ticks, respectively. The
+end of a logical tick and the start of the next logical tick happen
+together. The figure also shows the mapping of the logical time to the
+physical time. For example, the logical tick \texttt{1} starts at the
+first rising edge and completes at the second rising edge of the
+physical clock, whereas logical tick \texttt{4} starts at the $4^{th}$
+rising edge, but finishes at the $6^{th}$ rising edge of the physical
+clock. This difference can be accounted for by the Java computations
+required when signal \texttt{A} is input by the environment (see
+Figure~\ref{fig:2a}). This elasticity is inherent (and elegant) to both
+Esterel and SystemJ.
 
 % We now present a lemma with proof sketch (due to lack of space) that we
 % require for the rest of the paper and is special to SystemJ, being a

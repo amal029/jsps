@@ -67,6 +67,8 @@ grestore
 \usepackage{tikz}
 \usetikzlibrary{patterns}
 \usepackage{booktabs}
+\newcommand{\subparagraph}{}
+\usepackage{titlesec}
 \usepackage{multirow}
 \usepackage{url}
 \usepackage{amsmath}
@@ -104,6 +106,10 @@ grestore
 \subfloat[\sf@one][\sf@two]{\box\sf@box}%
 \fi}
 \makeatother
+
+\titlespacing*{\section}{0pt}{0.5cm}{0.3cm}
+\titlespacing*{\subsection}{0pt}{0.5cm}{0.3cm}
+
 
 \begin{document}
 

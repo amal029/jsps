@@ -68,6 +68,7 @@ while(true) {
 }
 \end{lstlisting}
 \end{SubFloat}
+
 \begin{SubFloat}{\label{d:b}Timing diagram -- the X-axis shows the
     execution of the \texttt{wait\_inbetween} statement. The Y-axis is
     the time elapsed. The arrow shows one example of the expiration of
@@ -134,6 +135,7 @@ postponement is not known or should not be known a priori.
 	\vspace{-10pt}
         \begin{SubFloat}{\label{dd:a}Timeout waiting for the input
             signal \texttt{DoorOpened}}
+						\begin{minipage}{0.4\textwidth}
         \begin{lstlisting}[style=sysj,morekeywords={abort,await,emit,present,trap,pause,exit,wait_atleast,suspend}]
 trap(T){
   abort(DoorOpened){
@@ -142,7 +144,9 @@ trap(T){
   }
 }
 \end{lstlisting}
+\end{minipage}
 \end{SubFloat}
+
 \begin{SubFloat}{\label{dd:b}Timing diagram -- the X-axis shows the
     execution of the \texttt{wait\_atleast} statement. The Y-axis is the
     time elapsed. The arrow shows one possible expiration of
@@ -192,6 +196,7 @@ program exact timeouts, periodic tasks, etc.
   \centering
 	\vspace{-10pt}
         \begin{SubFloat}{\label{pp:aa}Periodically emitting signal S}
+					\begin{minipage}{0.4\textwidth}
         \begin{lstlisting}[style=sysj,morekeywords={emit,trap,pause,exit,wait_exact}]
 while(true) { 
  wait_exact (1 ms); 
@@ -199,13 +204,17 @@ while(true) {
  //do something 
 }
 \end{lstlisting}
+\end{minipage}
 \end{SubFloat}
 
 \begin{SubFloat}{\label{p1:b}Timing diagram -- the X-axis shows the
     execution of the \texttt{wait\_exact} statement. The Y-axis is the
     time elapsed. The arrow shows the \textit{only} possible expiration
     of the \texttt{wait\_exact(1 ms)} statement.}
+		\begin{minipage}{0.45\textwidth}
+			\centering
   \includegraphics[scale=0.7]{FF3}
+\end{minipage}
 \end{SubFloat}
   \caption{Programming a periodic task with wait\_exact}
   \label{fig:p1}
