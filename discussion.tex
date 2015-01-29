@@ -192,7 +192,7 @@ our technique within such a setting with ease.
 \begin{figure}[h!]
   \centering
 	\vspace{-10pt}
-        \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,delay,suspend}]
+        \begin{lstlisting}[style=sysj,basicstyle=\footnotesize\ttfamily,morekeywords={emit,trap,pause,exit,delay,suspend,await}]
 {
  //reaction R1
  emit START_TIMER(1 ms); 
@@ -252,12 +252,74 @@ semantics of interaction are well defined~\cite{amal10}. More
 importantly, we need to consider the interplay of channel communication
 and WCRT/BCRT analysis. Since channel communication does not stop
 logical time \cite{amal10} WCRT/BCRT are unaffected by channel
-communication. % The response time to input signals \textit{is} though!
-% But, we are unconcerned with the response time, analysis in this paper
-% and it remains a future research avenue.
+communication. 
 
-% \subsubsection{Interaction of synchronous parallelism and delay}
-% \label{sec:inter-synchr-parall}
+\subsection{Interaction of synchronous parallelism and wait constructs} 
+\label{sec:inter-synchr-parall}
+
+Introducing wait constructs can change a behavior of SystemJ programs.
+Consider a snippet of code shown in Figure~\ref{fig:oo1} where the
+reaction R2 emits signal A, which is captured by R1, and as a result,
+signal O is emitted in the same tick. On the other hand,
+Figure~\ref{fig:oo2} shows a slightly modified code in which
+\texttt{wait\_exact} construct is inserted before the \texttt{await}
+statement. Assuming the \texttt{wait\_exact} consumes at least one
+logical tick, the \texttt{await} statement will miss the emission of
+signal A. Such changes in the program behavior can be avoided if the
+\texttt{wait\_exact} does not consume logical ticks, i.e. if it is
+replaced with, for example, \texttt{Thread\-.sleep()} method in Java.
+However, this will also delay the execution of all other reactions in
+the same clock-domain since they execute in lock-step, i.e. they are
+synchronized at tick boundaries. As a consequence, WCRT of a
+clock-domain would be increased as much as the largest amount of time
+used in the \texttt{wait} construct. Our approach does not block entire
+clock-domain because our technique transforms the \texttt{wait}
+constructs into a logical times using the \texttt{pause} statement. In
+our opinion, this is more preferred solution in most cases, since
+increasing WCRT can negatively impact many time-critical applications.
+Furthermore, there already exists a verification approach that can
+formally verify the functional correctness of the SystemJ program
+\cite{7005124}. This approach can also be applied to the program using
+the \texttt{wait} constructs, since they are translated into the
+original SystemJ kernel statements.
+
+
+\begin{figure}[h!]
+	\centering
+  \begin{SubFloat}{\label{fig:oo1}Original program}
+		\begin{minipage}[b]{0.22\textwidth}
+	\begin{lstlisting}[style=sysj,basicstyle=\scriptsize\ttfamily,morekeywords={emit,trap,pause,exit,wait_exact,await,immediate,abort}]
+{// R1
+    await(immediate A);
+    emit O;
+}
+|| 
+{emit A;} // R2
+	\end{lstlisting}
+\end{minipage}
+\end{SubFloat}
+\begin{SubFloat}{\label{fig:oo2}Inserting \texttt{wait\_exact} changes
+the program behavior}
+		\begin{minipage}[b]{0.22\textwidth}
+	\begin{lstlisting}[style=sysj,basicstyle=\scriptsize\ttfamily,morekeywords={emit,trap,pause,exit,wait_exact,await,immediate,abort}]
+{// R1
+    wait_exact(1 ms); 
+    await(immediate A);
+    emit O;
+}
+|| 
+{emit A;} // R2
+	\end{lstlisting}
+\end{minipage}
+\end{SubFloat}
+\caption{An effect of using \texttt{wait} construct}
+	\label{fig:sss}
+\end{figure}
+
+
+
+
+
 
 % {\color{red}Maybe we should talk about how the control flow in other
 %   reactions and CDs is not affected by the delay statement.}

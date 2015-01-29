@@ -23,6 +23,7 @@ ifndef DDIR
 endif
 	for i in $(TEX_FILES) ; \
 		do\
-		latexdiff-so $(DDIR)/$$i.tex $$i.tex > /tmp/$$i;\
+		latexdiff-so -c ld.cfg $(DDIR)/$$i.tex $$i.tex > /tmp/$$i;\
 		mv /tmp/$$i $$i.tex;\
 	done
+	make clean && make all
