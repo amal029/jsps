@@ -1,4 +1,6 @@
 FIGFILES=FF1 FF2 FF3 FF4
+TEX_FILES=background correct discussion introduction related_work\
+	conclusion delays exps motivation template
 all:
 	for i in $(FIGFILES) ; \
 	do \
@@ -14,3 +16,13 @@ all:
 
 clean:
 	rm -f *.aux FF1.pdf FF2.pdf FF3.pdf FF4.pdf *.log *.bbl *.blg
+
+latexdiff:
+ifndef DDIR
+	$(error DDIR is undefined)
+endif
+	for i in $(TEX_FILES) ; \
+		do\
+		latexdiff-so $(DDIR)/$$i.tex $$i.tex > /tmp/$$i;\
+		mv /tmp/$$i $$i.tex;\
+	done
