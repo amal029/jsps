@@ -193,6 +193,7 @@ SystemJ code.
 	\centering
   \begin{SubFloat}{\label{delaycode:a}Original program}
       \scriptsize
+			\begin{minipage}[b]{0.19\textwidth}
 		\begin{lstlisting}[style=sysj,morekeywords={abort,await,emit,present,trap,pause,exit,suspend}]
 emit TimerTriggered;
 trap(T){
@@ -202,9 +203,10 @@ trap(T){
   }
 }
 \end{lstlisting}
+\end{minipage}
   \end{SubFloat}
-  \hspace{1cm}%
   \begin{SubFloat}{\label{delaycode:b}Program with wait constructs}
+		\begin{minipage}[b]{0.25\textwidth}
 		\begin{lstlisting}[style=sysj,morekeywords={abort,await,emit,present,trap,pause,exit,wait_atleast,suspend}]
 // No emit statement
 trap(T){
@@ -214,6 +216,7 @@ trap(T){
   }
 }
 \end{lstlisting}
+\end{minipage}
 	\end{SubFloat}
 \caption{Replacing external timer with wait\_atleast construct}
 \label{delaycode}
@@ -250,10 +253,10 @@ trap(T){
 We use the TP-JOP platform to carry out all our experiments. We
 statically estimate the WCRT and BCRT of these benchmark applications
 using our real-time analysis framework described previously in
-Section~\ref{sec:stat-analys-comp-1}. The \textit{Safety Critical Java}
-(SCJ) specification we use for real-time analysis avoids garbage
-collection (GC) and hence, GC overheads and unpredictability are
-completely avoided.
+Section~\ref{sec:stat-analys-comp-1} and also by Li et al. \cite{zli14}.
+The \textit{Safety Critical Java} (SCJ) specification \cite{scj2013} we
+use for real-time analysis avoids garbage collection (GC) and hence, GC
+overheads and unpredictability are completely avoided.
 
 % We disable the \textit{Garbage Collector} (GC) in all experiments to
 % avoid unwanted side-effects such as lengthening clock-domain logical
