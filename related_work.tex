@@ -49,14 +49,16 @@ solution is targeted at studying timing properties using model checkers
 rather than implementation, like us.
 
 
-Lastly, all the aforementioned approaches
-\cite{rsh94,Bourke2009a,glog02} as well as our technique introduced in
-this paper cha\-nge the internal automata, hence the semantics of the
-program. This is as expected since a programmer is adding additional
-constructs to the program in order to incorporate the real-time
-postponements. However, as explained in
+Lastly, the aforementioned approaches \cite{rsh94,Bourke2009a,glog02} as
+well as our technique presented in this paper cha\-nge the internal
+automata that capture the semantics of the program. This is as expected
+as programmers introduce additional constructs in order to incorporate
+the real-time postponements in the program. However, as explained in
 Section~\ref{sec:disc-perc-limit}, our approach does not face their
-problems such as missing external timer signals due to preemption.
+problems such as deadlock due to missing a signal generated from the
+external timer.
+
+
 
 
 
