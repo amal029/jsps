@@ -28,7 +28,14 @@ require external timers \cite{rsh94} or logical notion of timers
 in logical ticks \textit{after} allocation and scheduling, it gives the
 compiler developers the chance to optimize for many different criteria
 such as computation time, energy, power, etc, without worrying about or
-violating the real-time wait specification.
+violating the real-time wait specification. All the aforementioned
+approaches \cite{rsh94,Bourke2009a} as well as our technique presented
+in this paper cha\-nge the internal automata that capture the semantics
+of the program. This is as expected as programmers introduce additional
+constructs in order to incorporate the real-time postponements in the
+program. However, as explained in Section~\ref{sec:disc-perc-limit}, our
+approach does not face the problems such as deadlock due to interaction
+with external timers.
 
 
 Bertin et al.~\cite{Bertin:2000:TVR:1947412.1947439} also incorporates
@@ -43,19 +50,12 @@ major difference between Bertin et al. and our approach is that their
 approach requires programmers to annotate the time taken by `C' code
 fragments manually, this is extremely error prone, we use static
 low-level program analysis to find out such times automatically.
-Logothethis et al.~\cite{glog02} uses the \texttt{pause} statement in a
-variant of the Esterel language called Quartz. Nevertheless, their
-solution is targeted at studying timing properties using model checkers
-rather than implementation, like us.
+Lastly, Logothethis et al.~\cite{glog02} uses the \texttt{pause}
+statement in a variant of the Esterel language called Quartz.
+Nevertheless, their solution is targeted at studying timing properties
+using model checkers rather than implementation, like us.
 
 
-Lastly, the aforementioned approaches \cite{rsh94,Bourke2009a,glog02} as
-well as our technique presented in this paper cha\-nge the internal
-automata that capture the semantics of the program. This is as expected
-as programmers introduce additional constructs in order to incorporate
-the real-time postponements in the program. However, as explained in
-Section~\ref{sec:disc-perc-limit}, our approach does not face the
-problems such as deadlock due to interaction with external timers.
 
 
 
