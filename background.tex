@@ -61,19 +61,18 @@ SystemJ consists of entities called \textit{Clock Domains} (CDs), each
 running at their individual pace, interacting with the environment via
 signals and with each other using CSP~\cite{choa85} style rendezvous via
 channels. Therefore, unlike other approaches that use broadcasting
-signals as a communication method between two asynchronous processes
-(e.g. Multiclock-Esterel \cite{multiesterel}), SystemJ's channel
-communication provides more robust method for synchronizing
-clock-domains. Each CD has its own notion of logical time. CDs are
-composed of one or more units called reactions. These reactions
-themselves can be composed of child reactions forming a hierarchy. Each
-CD adheres to the \textit{perfect synchrony} hypothesis, i.e., all
-statements execute instantaneously in zero time. Only the \texttt{pause}
-statement consumes time, just like in Esterel~\cite{gber931}. Consider
-the SystemJ program in Figure~\ref{fig:2a}, it is waiting for an input
-signal producing logical ticks (see Figure~\ref{fig:2c}). Once
-\texttt{A} is received at tick 1 or 4, output \texttt{O} is emitted to
-the environment instantaneously.
+signals as a communication method between asynchronous processes (e.g.
+Multiclock-Esterel \cite{multiesterel}), SystemJ's channel provides a
+safer way to exchange messages between clock-domains. Each CD has its
+own notion of logical time. CDs are composed of one or more units called
+reactions.  These reactions themselves can be composed of child
+reactions forming a hierarchy. Each CD adheres to the \textit{perfect
+synchrony} hypothesis, i.e., all statements execute instantaneously in
+zero time. Only the \texttt{pause} statement consumes time, just like in
+Esterel~\cite{gber931}. Consider the SystemJ program in
+Figure~\ref{fig:2a}, it is waiting for an input signal producing logical
+ticks (see Figure~\ref{fig:2c}). Once \texttt{A} is received at tick 1
+or 4, output \texttt{O} is emitted to the environment instantaneously.
 
 \subsection{Mapping logical time to physical time}
 \label{sec:mapping-logical-time}
@@ -81,7 +80,8 @@ the environment instantaneously.
 \begin{figure}[t!]
 \centering
 \begin{SubFloat}{\label{fig:2a}Simple SystemJ program}%...verbatim subfigure
-\begin{minipage}[b]{1\linewidth}% a minipage to control the width...
+	\hspace{1cm}
+\begin{minipage}[b]{0.8\linewidth}% a minipage to control the width...
 		\begin{lstlisting}[style=sysj,morekeywords={abort,await,emit,present,trap,pause,exit,delay,suspend}]
 {
 int counter = 0;
@@ -90,7 +90,8 @@ while(true){
   while(true) pause; 
  } // abort end
   emit O;
-  if(counter != 0) {/* java computation leading to WCRT */}
+  if(counter != 0) 
+  {/* java computation leading to WCRT */}
   ++counter;
  } // loop end
 } // SystemJ CD end

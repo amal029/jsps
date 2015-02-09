@@ -21,7 +21,7 @@ owner to enter a password, before it triggers an alarm sound. In a
 safety-critical applications, such as an artificial cardiac pacemaker
 \cite{Singh:2012:CPC:2388936.2388948}, such real-time features are
 indispensable; a pacemaker must be able to correctly monitor time
-intervals between the heart's native electrical pulse in order to
+intervals between the heart's consecutive pulses in order to
 control abnormal heart rhythms. Nevertheless, lack of real-time
 constructs in the reactive languages \cite{gber931,amal10} makes them
 difficult to be used in many real-time applications.
@@ -135,7 +135,8 @@ postponement is not known or should not be known a priori.
 	\vspace{-10pt}
         \begin{SubFloat}{\label{dd:a}Timeout waiting for the input
             signal \texttt{DoorOpened}}
-						\begin{minipage}{0.4\textwidth}
+						\hspace{2cm}
+						\begin{minipage}{0.3\textwidth}
         \begin{lstlisting}[style=sysj,morekeywords={abort,await,emit,present,trap,pause,exit,wait_atleast,suspend}]
 trap(T){
   abort(DoorOpened){
@@ -196,7 +197,8 @@ program exact timeouts, periodic tasks, etc.
   \centering
 	\vspace{-10pt}
         \begin{SubFloat}{\label{pp:aa}Periodically emitting signal S}
-					\begin{minipage}{0.4\textwidth}
+					\hspace{2.5cm}
+					\begin{minipage}{0.3\textwidth}
         \begin{lstlisting}[style=sysj,morekeywords={emit,trap,pause,exit,wait_exact}]
 while(true) { 
  wait_exact (1 ms); 
