@@ -6,8 +6,8 @@ all:
 	do \
 		fig2dev -L pdf $$i.fig > $$i.pdf;\
 	done
-	fig2dev -L pdftex phy.fig phy.pdf
-	fig2dev -L pdftex_t -p phy.pdf phy.fig phy.pdf_t
+#   fig2dev -L pdftex phy.fig phy.pdf
+#   fig2dev -L pdftex_t -p phy.pdf phy.fig phy.pdf_t
 	pdflatex template.tex
 	bibtex template.aux
 	pdflatex template.tex
